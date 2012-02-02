@@ -1,11 +1,11 @@
-i = as.integer(commandArgs()[6])
-sink(file = paste('geog_calc_envi_out_',i,'.txt',sep=''))
+## this file should be run from the ./maxent/geog/ directory
+i = as.integer(commandArgs()[length(commandArgs())])
 
 library(raster)
-load('meteData.Rdata')
-load('sampleCircles.Rdata')
+load('./data/meteData.Rdata')
+load('./data/sampleCircles.Rdata')
 load('/home/danmcglinn/GIS/WWFecoregionbiome/wwfeco.Rdata')
-enviLayerslaea = stack('enviLayerslaea.grd')
+enviLayerslaea = stack('./data/enviLayerslaea.grd')
 bioDat = meteData[[i]]
 
 ## Sample mean and variance inside circles
@@ -24,7 +24,6 @@ biome = overlay(wwfeco,SpatialPoints(bioDat))[,19]
 ## Output data product
 nameDat = names(meteData)[i]
 outDat = data.frame(bioDat, enviAvg, enviVar, biome)
-write.csv(outDat, file=paste(nameDat, '_envidat2.csv', sep=''), row.names=F)
+write.csv(outDat, file=paste('/home/danmcglinn/maxent/data/
+                             nameDat, '_envidat.csv', sep=''), row.names=F)
 
-sink()
-unlink(paste('geog_calc_envi_out_',i,'.txt',sep=''))
