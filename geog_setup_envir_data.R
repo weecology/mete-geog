@@ -2,7 +2,8 @@ library(sp)
 library(raster)
 library(rgdal)
 
-startDir = getwd()
+startDir = '/home/danmcglinn/maxent/geog/'
+setwd(startDir)
 ## PART II - query climate and ecosystem data
 
 ## set study exent
@@ -34,6 +35,11 @@ ndviJun = stack('JUNAV18.rst')
 ndviDec = stack('decav18.rst') 
 ndvi = stack(ndviJun,ndviDec)
 ndvi = crop(ndvi,myExtent)
+fixNDVI = function(x){
+  x2 = ifelse(x ==1,NA,x)
+  (x2-128)/128
+}
+ndvi = calc(ndvi,fixNDVI)
 
 ## resample WorldClim layers to resolution of NDVI before stacking them
 bioTemp = resample(bioStack, rasTemplate, method='bilinear',progress='text')
@@ -55,8 +61,8 @@ enviLayerslaea = projectRaster(from=enviLayers, to=temp.ext,
                  crs=CRS(laeaPrjString),progress='text')
 enviLayerslaea@layernames = enviLayers@layernames
 
-setwd('/home/danmcglinn/maxent/trunk/data/')
-writeRaster(enviLayerslaea,file='enviLayerslaea.grd',bandorder='BIL')
+setwd(startDir)
+writeRaster(enviLayerslaea,file='./data/enviLayerslaea.grd',bandorder='BIL')
 #enviLayerslaea = stack('enviLayerslaea.grd')
 
 rm(temp, temp.ext, alt, bioStack, enviLayers, ndviDec, ndviJun, wwfeco)
