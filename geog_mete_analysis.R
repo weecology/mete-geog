@@ -3,102 +3,158 @@
 ## Date Created: 08/03/2011
 ## Date Modified: N/A
 ## Purpose: To link the coordinates of the biotic surveys with environmental data
-
-bio1	Annual Mean Temperature
-bio2	Mean Diurnal Range (Mean of monthly (max temp - min temp))
-bio3	Isothermality (BIO2/BIO7) (* 100)
-bio4	Temperature Seasonality (standard deviation *100)
-bio5	Max Temperature of Warmest Month
-bio6	Min Temperature of Coldest Month
-bio7	Temperature Annual Range (BIO5-BIO6)
-bio8	Mean Temperature of Wettest Quarter
-bio9	Mean Temperature of Driest Quarter
-bio10	Mean Temperature of Warmest Quarter
-bio11	Mean Temperature of Coldest Quarter
-bio12	Annual Precipitation
-bio13	Precipitation of Wettest Month
-bio14	Precipitation of Driest Month
-bio15	Precipitation Seasonality (Coefficient of Variation)
-bio16	Precipitation of Wettest Quarter
-bio17	Precipitation of Driest Quarter
-bio18	Precipitation of Warmest Quarter
-bio19	Precipitation of Coldest Quarter
-
 ## PART III - Examine Regression models of S & N 
 
 #read in data for each dataset
-setwd('C:/Users/White Lab/Documents/Lab data/MaxEnt geog/data')
+setwd('/home/danmcglinn/maxent/data')
 file.names<-dir()
 file.names<-file.names[grep('_envidat.csv',file.names)]
 dat<-list()
 for(i in 1:length(file.names)){
  dat[[i]]<-read.table(file.names[i],header=T,sep=',')
+ dat[[i]]$logS = log10(dat[[i]]$S)
+ dat[[i]]$logN = log10(dat[[i]]$N)
 }
-names(dat)<-unlist(strsplit(file.names,'_dat.csv'))
+names(dat)<-unlist(strsplit(file.names,'_envidat.csv'))
 
-#################
-
-bbsS.ndvi<-lm(dat$bbs$S~dat$bbs$ndvi)
+bbsS.ndvi<-lm(dat$bbs$S~dat$bbs$ndviJun.mean)
 summary(bbsS.ndvi)
 
 ##try to recreate patterns from Hurlbert 2004
 par(mfrow=c(3,1))
-plot(dat$bbs$ndvi,dat$bbs$S)
-plot(dat$bbs$ndvi,dat$bbs$logN)
-plot(dat$bbs$logN,dat$bbs$S)
+plot(dat$bbs$ndviJun.mean,dat$bbs$S)
+plot(dat$bbs$ndviJun.mean,dat$bbs$N)
+plot(dat$bbs$N,dat$bbs$S)
 
-mod.objs<-list()
-mod.sums<-array(NA,dim=c(6,4,2),dimnames=list(names(dat),c('r.sq','adj.r.sq','num.vars','num.data'),c('S','N')))
+mod.objs<-vector('list',6)
+mod.sums<-array(NA,dim=c(6,4,4),dimnames=list(names(dat),
+                c('r.sq','adj.r.sq','num.vars','num.data'),c('S','N','logS','logN')))
 for(i in 1:length(dat)){
  ##drop rows with NA values for now
  dat[[i]]<-dat[[i]][apply(dat[[i]],1,function(x)sum(is.na(x))==0),]
- S.full.mod<-lm(dat[[i]]$S~dat[[i]]$Longitude+dat[[i]]$Latitude+dat[[i]]$bio1+dat[[i]]$bio2+dat[[i]]$bio3+dat[[i]]$bio4+dat[[i]]$bio5+
-                         dat[[i]]$bio6+dat[[i]]$bio7+dat[[i]]$bio8+dat[[i]]$bio9+dat[[i]]$bio10+
-                         dat[[i]]$bio11+dat[[i]]$bio12+dat[[i]]$bio13+dat[[i]]$bio14+dat[[i]]$bio15+
-                         dat[[i]]$bio16+dat[[i]]$bio17+dat[[i]]$bio18+dat[[i]]$ndvi+dat[[i]]$biome)
- N.full.mod<-lm(dat[[i]]$logN~dat[[i]]$Longitude+dat[[i]]$Latitude+dat[[i]]$bio1+dat[[i]]$bio2+dat[[i]]$bio3+dat[[i]]$bio4+dat[[i]]$bio5+
-                         dat[[i]]$bio6+dat[[i]]$bio7+dat[[i]]$bio8+dat[[i]]$bio9+dat[[i]]$bio10+
-                         dat[[i]]$bio11+dat[[i]]$bio12+dat[[i]]$bio13+dat[[i]]$bio14+dat[[i]]$bio15+
-                         dat[[i]]$bio16+dat[[i]]$bio17+dat[[i]]$bio18+dat[[i]]$ndvi+dat[[i]]$biome)
-
+ S.full.mod<-lm(S~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
+                mdr.mean+iso.mean+tseas.mean+tmax.mean+tmin.mean+tar.mean+
+                twetq.mean+tdryq.mean+twarmq.mean+tcoldq.mean+ap.mean+pwet.mean+
+                pdry.mean+pseas.mean+pwetq.mean+pdryq.mean+pwarmq.mean+pcoldq.mean+
+                mat.mean+alt.var+ndviJun.var+ndviDec.var+mdr.var+iso.var+
+                tseas.var+tmax.var+tmin.var+tar.var+twetq.var+tdryq.var+twarmq.var+
+                tcoldq.var+ap.var+pwet.var+pdry.var+pseas.var+pwetq.var+pdryq.var+
+                pwarmq.var+pcoldq.var+mat.var+biome,data=dat[[i]])
+ N.full.mod<-lm(N~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
+                mdr.mean+iso.mean+tseas.mean+tmax.mean+tmin.mean+tar.mean+
+                twetq.mean+tdryq.mean+twarmq.mean+tcoldq.mean+ap.mean+pwet.mean+
+                pdry.mean+pseas.mean+pwetq.mean+pdryq.mean+pwarmq.mean+pcoldq.mean+
+                mat.mean+alt.var+ndviJun.var+ndviDec.var+mdr.var+iso.var+
+                tseas.var+tmax.var+tmin.var+tar.var+twetq.var+tdryq.var+twarmq.var+
+                tcoldq.var+ap.var+pwet.var+pdry.var+pseas.var+pwetq.var+pdryq.var+
+                pwarmq.var+pcoldq.var+mat.var+biome,data=dat[[i]])
+ logS.full.mod<-lm(logS~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
+                mdr.mean+iso.mean+tseas.mean+tmax.mean+tmin.mean+tar.mean+
+                twetq.mean+tdryq.mean+twarmq.mean+tcoldq.mean+ap.mean+pwet.mean+
+                pdry.mean+pseas.mean+pwetq.mean+pdryq.mean+pwarmq.mean+pcoldq.mean+
+                mat.mean+alt.var+ndviJun.var+ndviDec.var+mdr.var+iso.var+
+                tseas.var+tmax.var+tmin.var+tar.var+twetq.var+tdryq.var+twarmq.var+
+                tcoldq.var+ap.var+pwet.var+pdry.var+pseas.var+pwetq.var+pdryq.var+
+                pwarmq.var+pcoldq.var+mat.var+biome,data=dat[[i]])
+ logN.full.mod<-lm(logN~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
+                mdr.mean+iso.mean+tseas.mean+tmax.mean+tmin.mean+tar.mean+
+                twetq.mean+tdryq.mean+twarmq.mean+tcoldq.mean+ap.mean+pwet.mean+
+                pdry.mean+pseas.mean+pwetq.mean+pdryq.mean+pwarmq.mean+pcoldq.mean+
+                mat.mean+alt.var+ndviJun.var+ndviDec.var+mdr.var+iso.var+
+                tseas.var+tmax.var+tmin.var+tar.var+twetq.var+tdryq.var+twarmq.var+
+                tcoldq.var+ap.var+pwet.var+pdry.var+pseas.var+pwetq.var+pdryq.var+
+                pwarmq.var+pcoldq.var+mat.var+biome,data=dat[[i]])
  S.sub.mod<-step(S.full.mod,trace=F)
  N.sub.mod<-step(N.full.mod,trace=F)
- mod.objs[[i]]<-list(S.mod=S.sub.mod,N.mod=N.sub.mod)
- mod.sums[i,,]<-round(cbind(c(summary(S.sub.mod)$r.squared,summary(S.sub.mod)$adj.r.squared,summary(S.sub.mod)$df[1],nrow(dat[[i]])),
-                      c(summary(N.sub.mod)$r.squared,summary(N.sub.mod)$adj.r.squared,summary(N.sub.mod)$df[1],nrow(dat[[i]]))),2)
+ logS.sub.mod<-step(logS.full.mod,trace=F)
+ logN.sub.mod<-step(logN.full.mod,trace=F)
+ mod.objs[[i]]<-list(S.mod=S.sub.mod,N.mod=N.sub.mod,logS.mod=logS.sub.mod,
+                     logN.mod=logN.sub.mod)
+ mod.sums[i,,]<-round(cbind(c(summary(S.sub.mod)$r.squared,
+                              summary(S.sub.mod)$adj.r.squared,
+                              summary(S.sub.mod)$df[1],nrow(dat[[i]])),
+                            c(summary(N.sub.mod)$r.squared,
+                              summary(N.sub.mod)$adj.r.squared,
+                              summary(N.sub.mod)$df[1],nrow(dat[[i]])),
+                            c(summary(logS.sub.mod)$r.squared,
+                              summary(logS.sub.mod)$adj.r.squared,
+                              summary(logS.sub.mod)$df[1],nrow(dat[[i]])),
+                            c(summary(logN.sub.mod)$r.squared,
+                              summary(logN.sub.mod)$adj.r.squared,
+                              summary(logN.sub.mod)$df[1],nrow(dat[[i]]))),2)
 }
 names(mod.objs)<-names(dat)
 
+setwd('/home/danmcglinn/maxent/geog')
+#save(dat,mod.objs,mod.sums,file='geog_stepwise_input_&_output.Rdata')
+#load('geog_stepwise_input_&_output.Rdata')
 mod.sums
 , , S
 
        r.sq adj.r.sq num.vars num.data
-bbs    0.55     0.55       25     2697
-cbc    0.73     0.72       28     1874
-fia    0.06     0.05       16    10196
-gentry 0.09     0.07        7      208
-mcdb   0.49     0.36       22      100
-naba   0.13     0.11        9      382
+bbs    0.56     0.55       35     2672
+cbc    0.73     0.72       44     1893
+fia    0.06     0.06       26    10350
+gentry 0.81     0.22       26       34
+mcdb   0.87     0.62       45       69
+naba   0.24     0.20       20      388
 
 , , N
 
        r.sq adj.r.sq num.vars num.data
-bbs    0.27     0.27       25     2697
-cbc    0.36     0.35       26     1874
-fia    0.16     0.16       23    10196
-gentry 0.06     0.03        7      208
-mcdb   0.52     0.41       19      100
-naba   0.04     0.03        7      382
+bbs    0.24     0.23       38     2672
+cbc    0.02     0.01       12     1893
+fia    0.19     0.19       36    10350
+gentry 0.86     0.42       26       34
+mcdb   0.98     0.95       45       69
+naba   0.05     0.04        7      388
 
-setwd('C:/Users/White Lab/Documents/Lab data/MaxEnt geog/analysis')
-#pdf('geog_prelim_r2.pdf')
+, , logS
+
+       r.sq adj.r.sq num.vars num.data
+bbs    0.58     0.57       38     2672
+cbc    0.71     0.70       43     1893
+fia    0.06     0.06       27    10350
+gentry 0.86     0.44       26       34
+mcdb   0.86     0.62       45       69
+naba   0.20     0.16       18      388
+
+, , logN
+
+       r.sq adj.r.sq num.vars num.data
+bbs    0.31     0.30       42     2672
+cbc    0.33     0.32       33     1893
+fia    0.18     0.18       36    10350
+gentry 0.89     0.53       26       34
+mcdb   0.95     0.87       44       69
+naba   0.11     0.07       17      388
+
+
+#setwd('C:/Users/White Lab/Documents/Lab data/MaxEnt geog/analysis')
+#pdf('geog_prelim_r2adj.pdf')
 plot(mod.sums[,2,1],mod.sums[,2,2],xlab='S adjRsq',ylab='N adjRsq',type='n')
 text(mod.sums[,2,1],mod.sums[,2,2],labels=names(dat))
+#dev.off()
+#pdf('geog_prelim_r2_both.pdf')
+plot(mod.sums[,2,1],mod.sums[,2,2],xlab='S Rsq',ylab='N Rsq',type='n',ylim=c(0,1),
+     xlim=c(0,1))
+text(mod.sums[,1,1],mod.sums[,1,2],labels=names(dat),col='red')
+text(mod.sums[,2,1],mod.sums[,2,2],labels=names(dat))
+legend('topleft',c('R sqr','adjusted R sqr'),col=2:1,lty=1,bty='n')
+abline(a=0,b=1,lty=2)
+#dev.off()
+#pdf('geog_prelim_r2_both_loglog.pdf')
+plot(mod.sums[,2,3],mod.sums[,2,4],xlab='logS Rsq',ylab='logN Rsq',type='n',ylim=c(0,1),
+     xlim=c(0,1))
+text(mod.sums[,1,3],mod.sums[,1,4],labels=names(dat),col='red')
+text(mod.sums[,2,3],mod.sums[,2,4],labels=names(dat))
+legend('topleft',c('R sqr','adjusted R sqr'),col=2:1,lty=1,bty='n')
+abline(a=0,b=1,lty=2)
 #dev.off()
 
 ##geographic variation in residuals
 library(maps)
-setwd('C:/Users/White Lab/Documents/Lab data/MaxEnt geog/analysis')
+#setwd('C:/Users/White Lab/Documents/Lab data/MaxEnt geog/analysis')
 
 S.resid<-residuals(mod.objs$bbs$S.mod)
 S.resid.std<-scale(S.resid)
@@ -148,7 +204,7 @@ for(i in 1:3){
 dev.off()
 
 ###
-setwd('C:/Users/White Lab/Documents/Lab data/MaxEnt geog/analysis')
+#setwd('C:/Users/White Lab/Documents/Lab data/MaxEnt geog/analysis')
 pdf('geog_resid_2.pdf')
 par(mfrow=c(3,2))
 #
