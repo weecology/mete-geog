@@ -19,6 +19,7 @@ import numpy as np
 import matplotlib.pylab as plt
 
 from mete import get_beta, get_mete_rad
+from macroeco import plot_color_by_pt_dens
 
 bbs_envpred_data = read_csv('data/bbs_out.csv')
 bbs_sad_data = read_csv('../data/bbs_obs_pred.csv', names=['SiteID',
@@ -31,7 +32,7 @@ bbs_sad_data = bbs_sad_data.ix[np.in1d(bbs_sad_data['SiteID'].values,
                                        bbs_envpred_data['SiteID'].values)]
 
 #Cut the input data down for development
-#bbs_envpred_data = bbs_envpred_data[0:50]
+bbs_envpred_data = bbs_envpred_data[0:500]
 
 envpred_sads = DataFrame(columns=['SiteID', 'EnvPred'])
 for index, site in bbs_envpred_data.iterrows():
@@ -48,14 +49,13 @@ for index, site in bbs_envpred_data.iterrows():
     envpred_sads = envpred_sads.append(site_sad_with_id, ignore_index=True)
 
 #Cut the input data down for development
-#bbs_sad_data = bbs_sad_data[0:len(envpred_sads)]
+bbs_sad_data = bbs_sad_data[0:len(envpred_sads)]
 
-plt.subplot(1, 3, 1)
+plt.subplot(1, 2, 1)
 plt.loglog(bbs_sad_data['Pred'], bbs_sad_data['Obs'], 'bo')
-plt.subplot(1, 3, 2)
-plt.loglog(bbs_sad_data['Pred'], envpred_sads['EnvPred'], 'go')
-plt.subplot(1, 3, 3)
+plt.loglog([min(bbs_sad_data['Pred']), max(bbs_sad_data['Pred'])], 
+         [min(bbs_sad_data['Pred']), max(bbs_sad_data['Pred'])], 'k-')
+plt.subplot(1, 2, 2)
 plt.loglog(envpred_sads['EnvPred'], bbs_sad_data['Obs'], 'ro')
-
-plt.figure()
-plt.plot(bbs_sad_data['SiteID'], envpred_sads['SiteID'], 'bo')
+plt.loglog([min(envpred_sads['EnvPred']), max(envpred_sads['EnvPred'])], 
+         [min(envpred_sads['EnvPred']), max(envpred_sads['EnvPred'])], 'k-')
