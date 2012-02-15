@@ -31,9 +31,6 @@ bbs_sad_data = read_csv('../data/bbs_obs_pred.csv', names=['SiteID',
 bbs_sad_data = bbs_sad_data.ix[np.in1d(bbs_sad_data['SiteID'].values,
                                        bbs_envpred_data['SiteID'].values)]
 
-#Cut the input data down for development
-bbs_envpred_data = bbs_envpred_data[0:500]
-
 envpred_sads = DataFrame(columns=['SiteID', 'EnvPred'])
 for index, site in bbs_envpred_data.iterrows():
     obs_S = site['S']
@@ -47,9 +44,6 @@ for index, site in bbs_envpred_data.iterrows():
                                                   site_sad]),
                                  columns=['SiteID', 'EnvPred'])
     envpred_sads = envpred_sads.append(site_sad_with_id, ignore_index=True)
-
-#Cut the input data down for development
-bbs_sad_data = bbs_sad_data[0:len(envpred_sads)]
 
 plt.subplot(1, 2, 1)
 plt.loglog(bbs_sad_data['Pred'], bbs_sad_data['Obs'], 'bo')
