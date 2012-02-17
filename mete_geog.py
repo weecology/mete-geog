@@ -50,6 +50,7 @@ def get_envpred_sads(envpred_data):
     return envpred_sads
 
 def plot_obs_pred(sad_data, envpred_sads):
+    plt.figure()
     plt.subplot(1, 2, 1)
     plt.loglog(sad_data['Pred'], sad_data['Obs'], 'bo')
     plt.loglog([min(sad_data['Pred']), max(sad_data['Pred'])], 
@@ -58,7 +59,9 @@ def plot_obs_pred(sad_data, envpred_sads):
     plt.loglog(envpred_sads['EnvPred'], sad_data['Obs'], 'ro')
     plt.loglog([min(envpred_sads['EnvPred']), max(envpred_sads['EnvPred'])], 
                [min(envpred_sads['EnvPred']), max(envpred_sads['EnvPred'])], 'k-')
-    
-envpred_data, sad_data = import_data('./data/', 'bbs')
-envpred_sads = get_envpred_sads(envpred_data)
-plot_obs_pred(sad_data, envpred_sads)
+
+datasets = ['bbs', 'cbc', 'fia', 'gentry', 'mcdb', 'naba']
+for dataset in datasets:
+    envpred_data, sad_data = import_data('./data/', dataset)
+    envpred_sads = get_envpred_sads(envpred_data)
+    plot_obs_pred(sad_data, envpred_sads)
