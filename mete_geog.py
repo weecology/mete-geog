@@ -19,7 +19,7 @@ import numpy as np
 import matplotlib.pylab as plt
 
 from mete import get_beta, get_mete_rad
-from macroeco import plot_color_by_pt_dens
+from macroecotools import plot_color_by_pt_dens, obs_pred_rsquare
 
 def import_data(datadir, dataset):
     envpred_data = read_csv(datadir + dataset + '_out.csv')
@@ -51,12 +51,7 @@ def get_envpred_sads(envpred_data):
 
 def plot_obs_pred(sad_data, envpred_sads):
     plt.figure()
-    plt.subplot(1, 2, 1)
-    plt.loglog(sad_data['Pred'], sad_data['Obs'], 'bo')
-    plt.loglog([min(sad_data['Pred']), max(sad_data['Pred'])], 
-               [min(sad_data['Pred']), max(sad_data['Pred'])], 'k-')
-    plt.subplot(1, 2, 2)
-    plt.loglog(envpred_sads['EnvPred'], sad_data['Obs'], 'ro')
+    plot_color_by_pt_dens(envpred_sads['EnvPred'], sad_data['Obs'], 3, loglog=1)
     plt.loglog([min(envpred_sads['EnvPred']), max(envpred_sads['EnvPred'])], 
                [min(envpred_sads['EnvPred']), max(envpred_sads['EnvPred'])], 'k-')
 
@@ -64,4 +59,7 @@ datasets = ['bbs', 'cbc', 'fia', 'gentry', 'mcdb', 'naba']
 for dataset in datasets:
     envpred_data, sad_data = import_data('./data/', dataset)
     envpred_sads = get_envpred_sads(envpred_data)
+    envpred_sads.to_csv('./data/%s_envpred_sads.csv' % dataset)
+    print obs_pred_rsquare(np.log(envpred_sads['EnvPred'].values),
+                           np.log(sad_data['Obs'].values))
     plot_obs_pred(sad_data, envpred_sads)
