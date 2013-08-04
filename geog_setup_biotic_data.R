@@ -1,3 +1,5 @@
+setwd('~/maxent/geog/data')
+
 library(sp)
 library(rgdal)
 
@@ -65,14 +67,25 @@ gc()
 save(meteData,file="meteData.Rdata")
 
 ## Optional: take a look at geographic distribution of biotic data
+cls = c('green3', 'dodgerblue', 'red', 'purple', 'orange', 'yellow')
+names_ordered = c('fia', 'bbs', 'cbc', 'naba', 'mcdb', 'gentry')
 library(maps)
-par(mfrow=c(2,1))
-map('world')
-for(i in 1:length(meteData))
-  points(meteData[[i]],pch=19,col=i+1,cex=.25)
+pdf('../figs/maps_of_data.pdf')
+par(mfrow=c(1,1))
 map('world',c('canada','usa','mexico'),xlim=c(-170,-50))
 for(i in 1:length(meteData))
-  points(meteData[[i]],pch='.',col=i+1)
+  points(meteData[[names_ordered[i]]],pch=19, cex=.5, col=cls[i])
 ## bounding box corners
-points(c(-157,-52),c(24,67),col='red',pch=19,cex=3) 
+#points(c(-157,-52),c(24,67),col='red',pch=19,cex=3) 
+for(i in 1:length(meteData)) {
+  map('world',c('canada','usa','mexico'),xlim=c(-170,-50))
+  for(j in 1:i) {
+    if (j < i)
+      points(meteData[[names_ordered[j]]],pch=19,cex=.5,col='grey')
+    else
+      points(meteData[[names_ordered[j]]],pch=19,cex=.5,col=cls[j])
+  }
+}
+dev.off()
+
 
