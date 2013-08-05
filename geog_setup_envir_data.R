@@ -2,7 +2,7 @@ library(sp)
 library(raster)
 library(rgdal)
 
-startDir = '/home/danmcglinn/maxent/geog/'
+startDir = '~/maxent/geog/'
 setwd(startDir)
 ## PART II - query climate and ecosystem data
 
@@ -19,8 +19,7 @@ res(rasTemplate) = myRes
 ## Read in raster datasets (Climate and NDVI) and crop to myExtent
 ## load bioclim datasets
 ## 5 arc-minutes resolution
-setwd('/home/danmcglinn/GIS/WorldClimData')
-#setwd('C:/Users/White Lab/Documents/Lab data/GIS/WorldClim data')
+setwd('~/gis/WorldClimData')
 load('bioclim_5m.Rdata') 
 bioStack = crop(bioStack, myExtent)
 ## load worldclim elev data
@@ -29,8 +28,7 @@ load('alt_5m.Rdata')
 alt = crop(alt,myExtent)
 
 ## load NDVI data
-setwd('/home/danmcglinn/GIS/GlobalVegData/Mean&Std')
-#setwd('C:/Users/White Lab/Documents/Lab data/GIS/GlobalVegData/Mean&Std')
+setwd('~/gis/GlobalVegData/Mean&Std')
 ndviJun = stack('JUNAV18.rst') 
 ndviDec = stack('decav18.rst') 
 ndvi = stack(ndviJun,ndviDec)
@@ -63,7 +61,7 @@ enviLayerslaea@layernames = enviLayers@layernames
 
 setwd(startDir)
 writeRaster(enviLayerslaea,file='./data/enviLayerslaea.grd',bandorder='BIL')
-#enviLayerslaea = stack('enviLayerslaea.grd')
+#enviLayerslaea = stack('./data/enviLayerslaea.grd')
 
 rm(temp, temp.ext, alt, bioStack, enviLayers, ndviDec, ndviJun, wwfeco)
 gc()
@@ -110,7 +108,7 @@ makeMeteCir = function(dataList,radii,laeaProjString){
  circs.sp
 }
 
-setwd(paste(startDir,'/data/',sep=''))
+setwd('~/maxent/geog/data/')
 load('meteData.Rdata')
 
 sampleCircles <- makeMeteCir(meteData,radii,laeaPrjString)
