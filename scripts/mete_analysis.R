@@ -90,7 +90,7 @@ save(dat, mod.objs, mod.sums, file='./results/stepwise_input_&_output.Rdata')
 mod.sums
 , , S
 
-r.sq adj.r.sq num.vars num.data
+       r.sq adj.r.sq num.vars num.data
 bbs    0.62     0.60      106     2672
 cbc    0.77     0.75      113     1893
 fia    0.06     0.06       50    10350
@@ -100,7 +100,7 @@ nabc   0.45     0.32       71      388
 
 , , N
 
-r.sq adj.r.sq num.vars num.data
+       r.sq adj.r.sq num.vars num.data
 bbs    0.31     0.28      112     2672
 cbc    0.02     0.01       12     1893
 fia    0.20     0.20       51    10350
@@ -110,7 +110,7 @@ nabc   0.30     0.14       75      388
 
 , , logS
 
-r.sq adj.r.sq num.vars num.data
+       r.sq adj.r.sq num.vars num.data
 bbs    0.64     0.63      107     2672
 cbc    0.75     0.74      112     1893
 fia    0.06     0.06       50    10350
@@ -120,7 +120,7 @@ nabc   0.42     0.28       74      388
 
 , , logN
 
-r.sq adj.r.sq num.vars num.data
+      r.sq adj.r.sq num.vars num.data
 bbs    0.39     0.37      113     2672
 cbc    0.40     0.37      105     1893
 fia    0.19     0.19       54    10350
@@ -129,18 +129,29 @@ mcdb   0.95     0.87       44       69
 nabc   0.11     0.07       17      388
 
 
+sub_names = c('bbs', 'cbc', 'nabc', 'fia')
+true = names(mod.objs) %in% sub_names
+mod.sums = mod.sums[true, , ]
+dat = dat[true]
+
 pdf('./figs/prelim_r2adj.pdf')
-plot(mod.sums[,2,1],mod.sums[,2,2],xlab='S adjRsq',ylab='N adjRsq',type='n')
-text(mod.sums[,2,1],mod.sums[,2,2],labels=names(dat))
+plot(mod.sums[,2,1],mod.sums[,2,2],xlab='S Rsq',ylab='N Rsq',type='n',ylim=c(0,1),
+     xlim=c(0,1), frame.plot=F, axes=F)
+axis(side=1, cex.axis=1.25, lwd=2)
+axis(side=2, cex.axis=1.25, lwd=2)
+text(mod.sums[,2,1],mod.sums[,2,2],labels=names(dat), cex=1.5)
+abline(a=0,b=1,lty=2, lwd=2)
 dev.off()
 
 pdf('./figs/prelim_r2_both.pdf')
 plot(mod.sums[,2,1],mod.sums[,2,2],xlab='S Rsq',ylab='N Rsq',type='n',ylim=c(0,1),
-     xlim=c(0,1))
-text(mod.sums[,1,1],mod.sums[,1,2],labels=names(dat),col='red')
-text(mod.sums[,2,1],mod.sums[,2,2],labels=names(dat))
+     xlim=c(0,1), frame.plot=F, axes=F)
+axis(side=1, cex.axis=1.25, lwd=2)
+axis(side=2, cex.axis=1.25, lwd=2)
+text(mod.sums[,1,1],mod.sums[,1,2],labels=names(dat),col='red', cex=1.5)
+text(mod.sums[,2,1],mod.sums[,2,2],labels=names(dat), cex=1.5)
 legend('topleft',c('R sqr','adjusted R sqr'),col=2:1,lty=1,bty='n')
-abline(a=0,b=1,lty=2)
+abline(a=0,b=1,lty=2, lwd=2)
 dev.off()
 
 pdf('./figs/prelim_r2_both_loglog.pdf')
