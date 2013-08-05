@@ -8,10 +8,10 @@
 #read in data for each dataset
 setwd('~/maxent/geog/')
 file.names<-dir('./data/')
-file.names<-paste('./data/', file.names[grep('_envidat.csv',file.names)], sep='')
+file.names<-file.names[grep('_envidat.csv',file.names)]
 dat<-list()
 for(i in 1:length(file.names)){
- dat[[i]]<-read.table(file.names[i],header=T,sep=',')
+ dat[[i]]<-read.table(file.path('./data/', file.names[i]),header=T,sep=',')
  dat[[i]]$logS = log10(dat[[i]]$S)
  dat[[i]]$logN = log10(dat[[i]]$N)
 }
@@ -85,45 +85,45 @@ for(i in 1:length(dat)){
 }
 names(mod.objs)<-names(dat)
 
-save(dat,mod.objs,mod.sums,file='geog_stepwise_input_&_output.Rdata')
-#load('geog_stepwise_input_&_output.Rdata')
+save(dat, mod.objs, mod.sums, file='./results/stepwise_input_&_output.Rdata')
+#load('./results/stepwise_input_&_output.Rdata')
 mod.sums
 , , S
 
-       r.sq adj.r.sq num.vars num.data
-bbs    0.56     0.55       35     2672
-cbc    0.73     0.72       44     1893
-fia    0.06     0.06       26    10350
+r.sq adj.r.sq num.vars num.data
+bbs    0.62     0.60      106     2672
+cbc    0.77     0.75      113     1893
+fia    0.06     0.06       50    10350
 gentry 0.81     0.22       26       34
 mcdb   0.87     0.62       45       69
-nabc   0.24     0.20       20      388
+nabc   0.45     0.32       71      388
 
 , , N
 
-       r.sq adj.r.sq num.vars num.data
-bbs    0.24     0.23       38     2672
+r.sq adj.r.sq num.vars num.data
+bbs    0.31     0.28      112     2672
 cbc    0.02     0.01       12     1893
-fia    0.19     0.19       36    10350
+fia    0.20     0.20       51    10350
 gentry 0.86     0.42       26       34
 mcdb   0.98     0.95       45       69
-nabc   0.05     0.04        7      388
+nabc   0.30     0.14       75      388
 
 , , logS
 
-       r.sq adj.r.sq num.vars num.data
-bbs    0.58     0.57       38     2672
-cbc    0.71     0.70       43     1893
-fia    0.06     0.06       27    10350
+r.sq adj.r.sq num.vars num.data
+bbs    0.64     0.63      107     2672
+cbc    0.75     0.74      112     1893
+fia    0.06     0.06       50    10350
 gentry 0.86     0.44       26       34
 mcdb   0.86     0.62       45       69
-nabc   0.20     0.16       18      388
+nabc   0.42     0.28       74      388
 
 , , logN
 
-       r.sq adj.r.sq num.vars num.data
-bbs    0.31     0.30       42     2672
-cbc    0.33     0.32       33     1893
-fia    0.18     0.18       36    10350
+r.sq adj.r.sq num.vars num.data
+bbs    0.39     0.37      113     2672
+cbc    0.40     0.37      105     1893
+fia    0.19     0.19       54    10350
 gentry 0.89     0.53       26       34
 mcdb   0.95     0.87       44       69
 nabc   0.11     0.07       17      388
@@ -159,8 +159,8 @@ S.resid<-residuals(mod.objs$bbs$S.mod)
 S.resid.std<-scale(S.resid)
 S.resid.pro<-S.resid.std/
 #
-N.resid<-residuals(mod.objs$bbs$N.mod)
-N.resid.std<-scale(N.resid)
+N.resid <- residuals(mod.objs$bbs$N.mod)
+N.resid.std <- scale(N.resid)
 pdf('./figs/bbs_resid.pdf')
 i=1
  par(mfrow=c(2,1))

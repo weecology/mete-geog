@@ -73,11 +73,14 @@ gc()
 
 ## write data product to file
 save(meteData,file="./data/meteData.Rdata")
+#load('./data/meteData.Rdata')
 
 ## Optional: take a look at geographic distribution of biotic data
 library(maps)
-pdf('../figs/maps_of_data.pdf')
+pdf('./figs/maps_of_data.pdf')
 par(mfrow=c(1,1))
+cls = c('green3', 'dodgerblue', 'red', 'mediumpurple', 'orange', 'darkgreen')
+names_ordered = c('fia', 'bbs', 'cbc', 'nabc', 'mcdb', 'gentry')
 map('world',c('canada','usa','mexico'),xlim=c(-170,-50))
 for(i in 1:length(meteData))
   points(meteData[[names_ordered[i]]],pch=19, cex=.5, col=cls[i])
@@ -89,7 +92,7 @@ for(i in 1:length(meteData)) {
     if (j < i)
       points(meteData[[names_ordered[j]]],pch=19,cex=.5,col='grey')
     else
-      points(meteData[[names_ordered[j]]],pch=19,cex=.5,col=cls[j])
+      points(meteData[[names_ordered[j]]],pch=19,cex=.5,col=cls[i])
   }
 }
 dev.off()
