@@ -6,9 +6,9 @@
 ## PART III - Examine Regression models of S & N 
 
 #read in data for each dataset
-setwd('~/maxent/geog/data')
-file.names<-dir()
-file.names<-file.names[grep('_envidat.csv',file.names)]
+setwd('~/maxent/geog/')
+file.names<-dir('./data/')
+file.names<-paste('./data/', file.names[grep('_envidat.csv',file.names)], sep='')
 dat<-list()
 for(i in 1:length(file.names)){
  dat[[i]]<-read.table(file.names[i],header=T,sep=',')
@@ -85,8 +85,7 @@ for(i in 1:length(dat)){
 }
 names(mod.objs)<-names(dat)
 
-setwd('/home/danmcglinn/maxent/geog')
-#save(dat,mod.objs,mod.sums,file='geog_stepwise_input_&_output.Rdata')
+save(dat,mod.objs,mod.sums,file='geog_stepwise_input_&_output.Rdata')
 #load('geog_stepwise_input_&_output.Rdata')
 mod.sums
 , , S
@@ -130,31 +129,31 @@ mcdb   0.95     0.87       44       69
 nabc   0.11     0.07       17      388
 
 
-#setwd('C:/Users/White Lab/Documents/Lab data/MaxEnt geog/analysis')
-#pdf('geog_prelim_r2adj.pdf')
+pdf('./figs/prelim_r2adj.pdf')
 plot(mod.sums[,2,1],mod.sums[,2,2],xlab='S adjRsq',ylab='N adjRsq',type='n')
 text(mod.sums[,2,1],mod.sums[,2,2],labels=names(dat))
-#dev.off()
-#pdf('geog_prelim_r2_both.pdf')
+dev.off()
+
+pdf('./figs/prelim_r2_both.pdf')
 plot(mod.sums[,2,1],mod.sums[,2,2],xlab='S Rsq',ylab='N Rsq',type='n',ylim=c(0,1),
      xlim=c(0,1))
 text(mod.sums[,1,1],mod.sums[,1,2],labels=names(dat),col='red')
 text(mod.sums[,2,1],mod.sums[,2,2],labels=names(dat))
 legend('topleft',c('R sqr','adjusted R sqr'),col=2:1,lty=1,bty='n')
 abline(a=0,b=1,lty=2)
-#dev.off()
-#pdf('geog_prelim_r2_both_loglog.pdf')
+dev.off()
+
+pdf('./figs/prelim_r2_both_loglog.pdf')
 plot(mod.sums[,2,3],mod.sums[,2,4],xlab='logS Rsq',ylab='logN Rsq',type='n',ylim=c(0,1),
      xlim=c(0,1))
 text(mod.sums[,1,3],mod.sums[,1,4],labels=names(dat),col='red')
 text(mod.sums[,2,3],mod.sums[,2,4],labels=names(dat))
 legend('topleft',c('R sqr','adjusted R sqr'),col=2:1,lty=1,bty='n')
 abline(a=0,b=1,lty=2)
-#dev.off()
+dev.off()
 
 ##geographic variation in residuals
 library(maps)
-#setwd('C:/Users/White Lab/Documents/Lab data/MaxEnt geog/analysis')
 
 S.resid<-residuals(mod.objs$bbs$S.mod)
 S.resid.std<-scale(S.resid)
@@ -162,7 +161,7 @@ S.resid.pro<-S.resid.std/
 #
 N.resid<-residuals(mod.objs$bbs$N.mod)
 N.resid.std<-scale(N.resid)
-pdf('geog_bbs_resid.pdf')
+pdf('./figs/bbs_resid.pdf')
 i=1
  par(mfrow=c(2,1))
  map('world',c('usa','canada'),xlim=c(-160,-50),ylim=c(25,55))
@@ -180,7 +179,7 @@ i=1
 dev.off()
 
 
-pdf('geog_resid_1.pdf')
+pdf('./figs/geog_resid_1.pdf')
 par(mfrow=c(3,2))
 #
 for(i in 1:3){
@@ -204,8 +203,7 @@ for(i in 1:3){
 dev.off()
 
 ###
-#setwd('C:/Users/White Lab/Documents/Lab data/MaxEnt geog/analysis')
-pdf('geog_resid_2.pdf')
+pdf('./figs/geog_resid_2.pdf')
 par(mfrow=c(3,2))
 #
 for(i in 4:6){
