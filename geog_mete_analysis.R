@@ -6,7 +6,7 @@
 ## PART III - Examine Regression models of S & N 
 
 #read in data for each dataset
-setwd('/home/danmcglinn/maxent/data')
+setwd('~/maxent/geog/data')
 file.names<-dir()
 file.names<-file.names[grep('_envidat.csv',file.names)]
 dat<-list()
