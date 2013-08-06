@@ -7,17 +7,17 @@
 
 #read in data for each dataset
 setwd('~/maxent/geog/')
-file.names<-dir('./data/')
-file.names<-file.names[grep('_envidat.csv',file.names)]
-dat<-list()
+file.names = dir('./data/')
+file.names = file.names[grep('_envidat.csv',file.names)]
+dat = list()
 for(i in 1:length(file.names)){
- dat[[i]]<-read.table(file.path('./data/', file.names[i]),header=T,sep=',')
+ dat[[i]] = read.table(file.path('./data/', file.names[i]),header=T,sep=',')
  dat[[i]]$logS = log10(dat[[i]]$S)
  dat[[i]]$logN = log10(dat[[i]]$N)
 }
-names(dat)<-unlist(strsplit(file.names,'_envidat.csv'))
+names(dat) = unlist(strsplit(file.names,'_envidat.csv'))
 
-bbsS.ndvi<-lm(dat$bbs$S~dat$bbs$ndviJun.mean)
+bbsS.ndvi = lm(dat$bbs$S~dat$bbs$ndviJun.mean)
 summary(bbsS.ndvi)
 
 ##try to recreate patterns from Hurlbert 2004
@@ -26,13 +26,13 @@ plot(dat$bbs$ndviJun.mean,dat$bbs$S)
 plot(dat$bbs$ndviJun.mean,dat$bbs$N)
 plot(dat$bbs$N,dat$bbs$S)
 
-mod.objs<-vector('list',6)
-mod.sums<-array(NA,dim=c(6,4,4),dimnames=list(names(dat),
+mod.objs = vector('list',6)
+mod.sums = array(NA,dim=c(6,4,4),dimnames=list(names(dat),
                 c('r.sq','adj.r.sq','num.vars','num.data'),c('S','N','logS','logN')))
 for(i in 1:length(dat)){
  ##drop rows with NA values for now
- dat[[i]]<-dat[[i]][apply(dat[[i]],1,function(x)sum(is.na(x))==0),]
- S.full.mod<-lm(S~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
+ dat[[i]] = dat[[i]][apply(dat[[i]],1,function(x)sum(is.na(x))==0),]
+ S.full.mod = lm(S~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
                 mdr.mean+iso.mean+tseas.mean+tmax.mean+tmin.mean+tar.mean+
                 twetq.mean+tdryq.mean+twarmq.mean+tcoldq.mean+ap.mean+pwet.mean+
                 pdry.mean+pseas.mean+pwetq.mean+pdryq.mean+pwarmq.mean+pcoldq.mean+
@@ -40,7 +40,7 @@ for(i in 1:length(dat)){
                 tseas.var+tmax.var+tmin.var+tar.var+twetq.var+tdryq.var+twarmq.var+
                 tcoldq.var+ap.var+pwet.var+pdry.var+pseas.var+pwetq.var+pdryq.var+
                 pwarmq.var+pcoldq.var+mat.var+biome,data=dat[[i]])
- N.full.mod<-lm(N~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
+ N.full.mod = lm(N~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
                 mdr.mean+iso.mean+tseas.mean+tmax.mean+tmin.mean+tar.mean+
                 twetq.mean+tdryq.mean+twarmq.mean+tcoldq.mean+ap.mean+pwet.mean+
                 pdry.mean+pseas.mean+pwetq.mean+pdryq.mean+pwarmq.mean+pcoldq.mean+
@@ -48,7 +48,7 @@ for(i in 1:length(dat)){
                 tseas.var+tmax.var+tmin.var+tar.var+twetq.var+tdryq.var+twarmq.var+
                 tcoldq.var+ap.var+pwet.var+pdry.var+pseas.var+pwetq.var+pdryq.var+
                 pwarmq.var+pcoldq.var+mat.var+biome,data=dat[[i]])
- logS.full.mod<-lm(logS~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
+ logS.full.mod = lm(logS~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
                 mdr.mean+iso.mean+tseas.mean+tmax.mean+tmin.mean+tar.mean+
                 twetq.mean+tdryq.mean+twarmq.mean+tcoldq.mean+ap.mean+pwet.mean+
                 pdry.mean+pseas.mean+pwetq.mean+pdryq.mean+pwarmq.mean+pcoldq.mean+
@@ -56,7 +56,7 @@ for(i in 1:length(dat)){
                 tseas.var+tmax.var+tmin.var+tar.var+twetq.var+tdryq.var+twarmq.var+
                 tcoldq.var+ap.var+pwet.var+pdry.var+pseas.var+pwetq.var+pdryq.var+
                 pwarmq.var+pcoldq.var+mat.var+biome,data=dat[[i]])
- logN.full.mod<-lm(logN~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
+ logN.full.mod = lm(logN~Longitude+Latitude+alt.mean+ndviJun.mean+ndviDec.mean+   
                 mdr.mean+iso.mean+tseas.mean+tmax.mean+tmin.mean+tar.mean+
                 twetq.mean+tdryq.mean+twarmq.mean+tcoldq.mean+ap.mean+pwet.mean+
                 pdry.mean+pseas.mean+pwetq.mean+pdryq.mean+pwarmq.mean+pcoldq.mean+
@@ -64,13 +64,13 @@ for(i in 1:length(dat)){
                 tseas.var+tmax.var+tmin.var+tar.var+twetq.var+tdryq.var+twarmq.var+
                 tcoldq.var+ap.var+pwet.var+pdry.var+pseas.var+pwetq.var+pdryq.var+
                 pwarmq.var+pcoldq.var+mat.var+biome,data=dat[[i]])
- S.sub.mod<-step(S.full.mod,trace=F)
- N.sub.mod<-step(N.full.mod,trace=F)
- logS.sub.mod<-step(logS.full.mod,trace=F)
- logN.sub.mod<-step(logN.full.mod,trace=F)
- mod.objs[[i]]<-list(S.mod=S.sub.mod,N.mod=N.sub.mod,logS.mod=logS.sub.mod,
+ S.sub.mod = step(S.full.mod,trace=F)
+ N.sub.mod = step(N.full.mod,trace=F)
+ logS.sub.mod = step(logS.full.mod,trace=F)
+ logN.sub.mod = step(logN.full.mod,trace=F)
+ mod.objs[[i]] = list(S.mod=S.sub.mod,N.mod=N.sub.mod,logS.mod=logS.sub.mod,
                      logN.mod=logN.sub.mod)
- mod.sums[i,,]<-round(cbind(c(summary(S.sub.mod)$r.squared,
+ mod.sums[i,,] = round(cbind(c(summary(S.sub.mod)$r.squared,
                               summary(S.sub.mod)$adj.r.squared,
                               summary(S.sub.mod)$df[1],nrow(dat[[i]])),
                             c(summary(N.sub.mod)$r.squared,
@@ -83,7 +83,7 @@ for(i in 1:length(dat)){
                               summary(logN.sub.mod)$adj.r.squared,
                               summary(logN.sub.mod)$df[1],nrow(dat[[i]]))),2)
 }
-names(mod.objs)<-names(dat)
+names(mod.objs) = names(dat)
 
 save(dat, mod.objs, mod.sums, file='./results/stepwise_input_&_output.Rdata')
 #load('./results/stepwise_input_&_output.Rdata')
@@ -128,14 +128,22 @@ gentry 0.89     0.53       26       34
 mcdb   0.95     0.87       44       69
 nabc   0.11     0.07       17      388
 
-
 sub_names = c('bbs', 'cbc', 'nabc', 'fia')
 true = names(mod.objs) %in% sub_names
 mod.sums = mod.sums[true, , ]
 dat = dat[true]
 
+pdf('./figs/prelim_r2.pdf')
+plot(mod.sums[,1,1],mod.sums[,1,2],xlab='S Rsq adj',ylab='N Rsq adj',type='n',ylim=c(0,1),
+     xlim=c(0,1), frame.plot=F, axes=F)
+axis(side=1, cex.axis=1.25, lwd=2)
+axis(side=2, cex.axis=1.25, lwd=2)
+text(mod.sums[,1,1],mod.sums[,1,2],labels=names(dat), cex=1.5)
+abline(a=0,b=1,lty=2, lwd=2)
+dev.off()
+
 pdf('./figs/prelim_r2adj.pdf')
-plot(mod.sums[,2,1],mod.sums[,2,2],xlab='S Rsq',ylab='N Rsq',type='n',ylim=c(0,1),
+plot(mod.sums[,2,1],mod.sums[,2,2],xlab='S Rsq adj',ylab='N Rsq adj',type='n',ylim=c(0,1),
      xlim=c(0,1), frame.plot=F, axes=F)
 axis(side=1, cex.axis=1.25, lwd=2)
 axis(side=2, cex.axis=1.25, lwd=2)
@@ -154,6 +162,24 @@ legend('topleft',c('R sqr','adjusted R sqr'),col=2:1,lty=1,bty='n')
 abline(a=0,b=1,lty=2, lwd=2)
 dev.off()
 
+pdf('./figs/prelim_r2_loglog.pdf')
+plot(mod.sums[,1,3],mod.sums[,1,4],xlab='S Rsq',ylab='N Rsq',type='n',ylim=c(0,1),
+     xlim=c(0,1), frame.plot=F, axes=F)
+axis(side=1, cex.axis=1.25, lwd=2)
+axis(side=2, cex.axis=1.25, lwd=2)
+text(mod.sums[,1,3],mod.sums[,1,4],labels=names(dat), cex=1.5)
+abline(a=0,b=1,lty=2, lwd=2)
+dev.off()
+
+pdf('./figs/prelim_r2adj_loglog.pdf')
+plot(mod.sums[,2,3],mod.sums[,2,4],xlab='S Rsq',ylab='N Rsq',type='n',ylim=c(0,1),
+     xlim=c(0,1), frame.plot=F, axes=F)
+axis(side=1, cex.axis=1.25, lwd=2)
+axis(side=2, cex.axis=1.25, lwd=2)
+text(mod.sums[,2,3],mod.sums[,2,4],labels=names(dat), cex=1.5)
+abline(a=0,b=1,lty=2, lwd=2)
+dev.off()
+
 pdf('./figs/prelim_r2_both_loglog.pdf')
 plot(mod.sums[,2,3],mod.sums[,2,4],xlab='logS Rsq',ylab='logN Rsq',type='n',ylim=c(0,1),
      xlim=c(0,1))
@@ -163,15 +189,21 @@ legend('topleft',c('R sqr','adjusted R sqr'),col=2:1,lty=1,bty='n')
 abline(a=0,b=1,lty=2)
 dev.off()
 
+pdf('./figs/prelim_r2_log_vs_arith.pdf')
+plot(mod.sums[,2,3], mod.sums[,2,4], xlim=c(0,1), ylim=c(0,1), type='n')
+text(mod.sums[,2,1], mod.sums[,2,2], labels=names(dat), col='red')
+text(mod.sums[,2,3], mod.sums[,2,4], labels=names(dat))
+dev.off()
+
 ##geographic variation in residuals
 library(maps)
 
-S.resid<-residuals(mod.objs$bbs$S.mod)
-S.resid.std<-scale(S.resid)
-S.resid.pro<-S.resid.std/
+S.resid = residuals(mod.objs$bbs$S.mod)
+S.resid.std = scale(S.resid)
+S.resid.pro = S.resid.std/
 #
-N.resid <- residuals(mod.objs$bbs$N.mod)
-N.resid.std <- scale(N.resid)
+N.resid  =  residuals(mod.objs$bbs$N.mod)
+N.resid.std  =  scale(N.resid)
 pdf('./figs/bbs_resid.pdf')
 i=1
  par(mfrow=c(2,1))
@@ -250,18 +282,18 @@ library(raster)
 library(rgdal)
 library(gstat)
 ##bbs example
-bbs.dat<-cbind(dat$bbs,residuals(mod.objs$bbs$S.mod),residuals(mod.objs$bbs$N.mod))
-names(bbs.dat)<-c(names(bbs.dat)[-(33:34)],'Sresid','Nresid')
-coordinates(bbs.dat)<-c('Longitude','Latitude')
-proj4string(bbs.dat)<-CRS('+proj=longlat')
+bbs.dat = cbind(dat$bbs,residuals(mod.objs$bbs$S.mod),residuals(mod.objs$bbs$N.mod))
+names(bbs.dat) = c(names(bbs.dat)[-(33:34)],'Sresid','Nresid')
+coordinates(bbs.dat) = c('Longitude','Latitude')
+proj4string(bbs.dat) = CRS('+proj=longlat')
 
 #Map point data
-STATES<-map(database='world',c('usa','canada'),xlim=c(-165,-50),fill=T,plot=F) 
-STATES_sp<-map2SpatialPolygons(STATES, IDs=STATES$names, CRS('+proj=longlat'))
-states.outline<-list('sp.polygons',STATES_sp)
-Nintervals<-classIntervals(c(bbs.dat$Nresid),n=15,style='equal')
-Sintervals<-classIntervals(c(bbs.dat$Sresid),n=15,style='equal')
-bird.layout<-list(states.outline)
+STATES = map(database='world',c('usa','canada'),xlim=c(-165,-50),fill=T,plot=F) 
+STATES_sp = map2SpatialPolygons(STATES, IDs=STATES$names, CRS('+proj=longlat'))
+states.outline = list('sp.polygons',STATES_sp)
+Nintervals = classIntervals(c(bbs.dat$Nresid),n=15,style='equal')
+Sintervals = classIntervals(c(bbs.dat$Sresid),n=15,style='equal')
+bird.layout = list(states.outline)
 
 spplot(bbs.dat,'Sresid',sp.layout=bird.layout, cuts=Sintervals$brks,pch=19,
 	col.regions=colorRampPalette(c('Blue','Light Blue','Dark Green','Yellow','Red'))(20),
@@ -271,8 +303,8 @@ spplot(bbs.dat,'Nresid',sp.layout=bird.layout, cuts=Nintervals$brks,pch=19,
 	col.regions=colorRampPalette(c('Blue','Light Blue','Dark Green','Yellow','Red'))(20),
 	key.space=list(space='right',border=TRUE))  
 
-usa<-map('usa',fill=T,plot=F)
-usa_sp<-map2SpatialPolygons(usa, IDs=usa$names, CRS('+proj=longlat'))
+usa = map('usa',fill=T,plot=F)
+usa_sp = map2SpatialPolygons(usa, IDs=usa$names, CRS('+proj=longlat'))
 
 #Make a grid that we will fill 
 bb = bbox(STATES_sp) #Defines bounding box
@@ -312,7 +344,7 @@ scale = list('SpatialPolygonsRescale',layout.scale.bar(),offset=c(-120,30),
 	scale=4,fill=c('transparent','black')) #makes scale bar
 start = list('sp.text', c(-120,29), '0', cex=0.7)#text for scale bar
 stop = list('sp.text', c(-116,29), '4', cex=0.7)
-mylayout<-list(route.locs, scale, start, stop)#combine layout attributes into a list
+mylayout = list(route.locs, scale, start, stop)#combine layout attributes into a list
 
 spplot(birds_sgdf,c('Sresid.pred.mean',
 	col.regions=colorRampPalette(c('Blue','Light Blue','Dark Green','Yellow','Red'))(21),
