@@ -15,6 +15,7 @@ work using the Breeding Bird Survey data alone.
 """
 
 from pandas import DataFrame, read_csv
+from math import log
 import numpy as np
 import matplotlib.pylab as plt
 
@@ -41,24 +42,29 @@ def get_envpred_sads(envpred_data):
         beta = get_beta(envpred_S, envpred_N)
         #To produce a comparable number of species use obs_S; IS THIS RIGHT?
         site_sad, p = get_mete_rad(obs_S, envpred_N, beta=beta)
-        site_sad_with_id = DataFrame(np.column_stack([site['SiteID'] *
-                                                      np.ones(len(site_sad)),
-                                                      site_sad]),
+        site_ids = [site['SiteID'] for i in range(0, len(site_sad))]
+        site_sad_with_id = DataFrame(np.column_stack([site_ids, site_sad]),
                                      columns=['SiteID', 'EnvPred'])
         envpred_sads = envpred_sads.append(site_sad_with_id, ignore_index=True)
     return envpred_sads
 
-def plot_obs_pred(sad_data, envpred_sads):
+def plot_obs_pred(sad_data, envpred_sads, dest_file='./obs_pred.png'):
     plt.figure()
     plot_color_by_pt_dens(envpred_sads['EnvPred'], sad_data['Obs'], 3, loglog=1)
     plt.loglog([min(envpred_sads['EnvPred']), max(envpred_sads['EnvPred'])], 
                [min(envpred_sads['EnvPred']), max(envpred_sads['EnvPred'])], 'k-')
-
+    plt.savefig(dest_file, dpi = 400)
+    
 datasets = ['bbs', 'cbc', 'fia', 'nabc']
+
 for dataset in datasets:
     envpred_data, sad_data = import_data('./data/', dataset)
     envpred_sads = get_envpred_sads(envpred_data)
     envpred_sads.to_csv('./data/%s_envpred_sads.csv' % dataset)
-    print obs_pred_rsquare(np.log(envpred_sads['EnvPred'].values),
-                           np.log(sad_data['Obs'].values))
+    #envpred_sads = read_csv('./data/%s_envpred_sads.csv' % dataset)
+    log_pred = [log(float(i)) for i in envpred_sads['EnvPred'].values]
+    log_obs = [log(float(i)) for i in sad_data['Obs'].values]    
+    print obs_pred_rsquare(np.array(log_pred), np.array(log_obs))
     plot_obs_pred(sad_data, envpred_sads)
+    
+    
