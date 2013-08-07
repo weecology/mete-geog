@@ -13,6 +13,9 @@ Currently this is just a quick test run focusing on how well this idea can
 work using the Breeding Bird Survey data alone.
 
 """
+import matplotlib
+# Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg')
 
 from pandas import DataFrame, read_csv
 from math import log
@@ -21,6 +24,8 @@ import matplotlib.pylab as plt
 
 from mete import get_beta, get_mete_rad
 from macroecotools import plot_color_by_pt_dens, obs_pred_rsquare
+#import working_functions *
+
 
 def import_data(datadir, dataset):
     envpred_data = read_csv(datadir + dataset + '_out.csv')
@@ -49,8 +54,8 @@ def get_envpred_sads(envpred_data):
     return envpred_sads
 
 def plot_obs_pred(sad_data, envpred_sads, dest_file='./obs_pred.png'):
-    plt.figure()
-    plot_color_by_pt_dens(envpred_sads['EnvPred'], sad_data['Obs'], 3, loglog=1)
+    plot_color_by_pt_dens(envpred_sads['EnvPred'], sad_data['Obs'], 3, loglog=1,
+                          plot_obj=ax)
     plt.loglog([min(envpred_sads['EnvPred']), max(envpred_sads['EnvPred'])], 
                [min(envpred_sads['EnvPred']), max(envpred_sads['EnvPred'])], 'k-')
     plt.savefig(dest_file, dpi = 400)
