@@ -28,13 +28,13 @@ from macroecotools import plot_color_by_pt_dens, obs_pred_rsquare
 
 def import_data(datadir, dataset):
     envpred_data = read_csv(datadir + dataset + '_out.csv')
-    sad_data = read_csv(datadir + dataset +'_obs_pred_sub.csv', names=['SiteID',
+    sad_data = read_csv(datadir + dataset +'_obs_pred.csv', names=['SiteID',
                                                                   'Year',
                                                                   'Obs',
                                                                   'Pred'])
     #Deal with the fact that in some cases there are different sites in
     #*_out.csv and *_obs_pred.csv
-    #sad_data = sad_data.ix[np.in1d(sad_data['SiteID'].values, envpred_data['SiteID'].values)]
+    sad_data = sad_data.ix[np.in1d(sad_data['SiteID'].values, envpred_data['SiteID'].values)]
     return envpred_data, sad_data
 
 def get_envpred_sads(envpred_data):
