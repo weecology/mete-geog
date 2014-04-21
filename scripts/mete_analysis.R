@@ -6,7 +6,6 @@
 ## PART III - Examine Regression models of S & N 
 
 #read in data for each dataset
-setwd('~/maxent/geog/')
 file.names = dir('./data/')
 file.names = file.names[grep('_envidat.csv',file.names)]
 dat = list()
