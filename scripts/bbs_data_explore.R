@@ -87,6 +87,8 @@ HAVING (((counts.Year >= 2008) AND (counts.RPID = 101))) ;
 
 # 6. Output results for 2012 contiguous sampling
 
+SELECT 'SiteID', 'Year', 'TOO', 'AB'
+UNION ALL
 SELECT counts_too.SiteID, counts_too.Year, counts_too.TOO, 
 counts_too.AB
 FROM queries.counts_too INNER JOIN queries.weather_sub_cnt
@@ -99,6 +101,8 @@ LINES TERMINATED BY '\n';
 
 # 7. Output results for the 2008 to 2012 contiguous sampling
 
+SELECT 'SiteID', 'TOO', 'AB'
+UNION ALL 
 SELECT counts_too.SiteID, counts_too.TOO, SUM(counts_too.AB) AS AB
 FROM queries.counts_too INNER JOIN queries.weather_sub_cnt
 ON counts_too.SiteID = weather_sub_cnt.SiteID
@@ -111,8 +115,11 @@ LINES TERMINATED BY '\n';
 
 # 8. Output coordinates for routes examined:
 
+SELECT 'SiteID', 'lati', 'loni'
+UNION ALL 
 SELECT (routes.statenum * 1000) + routes.route AS SiteID, lati, loni
 FROM BBS.routes 
 INTO OUTFILE '/tmp/bbs_coords.csv'
 FIELDS TERMINATED BY ',' 
 LINES TERMINATED BY '\n';  
+
