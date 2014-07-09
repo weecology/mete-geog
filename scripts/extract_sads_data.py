@@ -37,59 +37,109 @@ def get_raw_data(queries, engine='sqlite', file_name='downloaded_data.sqlite',
 
 # BBS
 
+
+
+
 bbs_queries = [# Step 1. TAXONOMY_BIRDS TAXONOMY.AOU_IN linked to BBS counts.Aou
                # Left Join = ALL records from BBS counts are included 
                # and only values from TAXONOMY that match
+               # Step 2. Group By AOU IN and by TOO WHERE DIURNAL LANDBIRD = 1 - 
+               # to yield AOU_TOO
                """
                CREATE TABLE queries.aous (aou INT(11)) 
                SELECT counts.Aou FROM BBS.counts 
-               GROUP BY counts.Aou;
+               GROUP BY counts.Aou ;
                """,
                """
                CREATE TABLE queries.aou_too_1 (aou INT(11)) 
                SELECT Aou AS AOU, TAXON_ORDER_OUT AS TOO FROM queries.aous 
                LEFT JOIN TAXONOMY_BIRDS.TAXONOMY 
                ON aous.Aou = TAXONOMY.AOU_IN 
-               WHERE TAXONOMY.DIURNALLANDBIRD = 1;
+               WHERE TAXONOMY.DIURNALLANDBIRD = 1 ;
                """,
-               # Step 2. Group By AOU IN and by TOO WHERE DIURNAL LANDBIRD = 1 - 
-               # to yield AOU_TOO                        
                """
                CREATE TABLE queries.aou_too (aou INT(11)) 
                SELECT AOU, TOO FROM queries.aou_too_1 
-               GROUP BY AOU, TOO;
+               GROUP BY AOU, TOO ;
                """,
-               # Step 3. Create table with SiteID, Year, RunType=1 from weather table
+               # 3. Create table with SiteID, Year, RunType=1 from weather table
                """
-               CREATE TABLE queries.weather_subquery
+               CREATE TABLE queries.weather_sub
                SELECT (weather.statenum * 1000 + weather.Route) AS SiteID,
                weather.Year, weather.RunType
                FROM BBS.weather
-               WHERE weather.RunType = 1 AND weather.RPID = 101;
+               WHERE weather.RunType = 1 AND weather.RPID = 101 AND weather.Year >= 2008 ;
                """,
-               # Step 4. To create table with SiteID, Year, Sp, abund:
+               # 4. Create table to record how many times from 2008 to 2012 (5 years)
+               # that a particular site was sampled. Only sites that were sampled
+               # continuously for the past 5 years will be used in the 5 yr window
+               # dataset.
+               """
+               CREATE TABLE queries.weather_cnt
+               SELECT SiteID, COUNT(SiteID) AS Count 
+               FROM queries.weather_sub
+               GROUP BY SiteID;
+               """,
+               # 5. distribute the year count information into the year specific 
+               # weather records 
+               """
+               CREATE TABLE queries.weather_sub_cnt
+               SELECT weather_sub.SiteID, weather_sub.Year, weather_sub.RunType,
+               weather_cnt.Count
+               FROM queries.weather_sub INNER JOIN queries.weather_cnt
+               ON weather_sub.SiteID = weather_cnt.SiteID ;
+               """,
+               # 5. To create table with SiteID, Year, Sp, abund:
                # Link together AOU_TOO and BBS Counts by AOU - 
                # Group By SiteID = state*1000 + route - TOO - Year 
-               # Sum SpeciesTotal
+               # Sum SpeciesTotal for 2012
                """
                CREATE TABLE queries.counts_too
                SELECT (counts.statenum * 1000) + counts.Route AS SiteID,
                counts.Year, aou_too.TOO, counts.RPID,
                SUM(counts.SpeciesTotal) AS AB 
-               FROM BBS.counts INNER JOIN queries.aou_too ON 
-               counts.Aou = aou_too.AOU
+               FROM BBS.counts INNER JOIN queries.aou_too
+               ON counts.Aou = aou_too.AOU
                GROUP BY SiteID, counts.Year, aou_too.TOO, counts.RPID
-               HAVING (((counts.Year = 2009) AND (counts.RPID = 101)));
+               HAVING (((counts.Year >= 2008) AND (counts.RPID = 101))) ;
                """,
+               # 6. Output results for 2012 contiguous sampling
                """
+               SELECT 'site_id', 'year', 'sp_id', 'ab'
+               UNION ALL
                SELECT counts_too.SiteID, counts_too.Year, counts_too.TOO, 
                counts_too.AB
-               FROM queries.counts_too INNER JOIN queries.weather_subquery
-               ON counts_too.SiteID = weather_subquery.SiteID 
-               AND counts_too.Year = weather_subquery.Year
-               INTO OUTFILE '/tmp/bbs_spab.csv'
+               FROM queries.counts_too INNER JOIN queries.weather_sub_cnt
+               ON counts_too.SiteID = weather_sub_cnt.SiteID 
+               AND counts_too.Year = weather_sub_cnt.Year
+               AND counts_too.Year = 2012
+               INTO OUTFILE '/tmp/bbs_2012_spab.csv'
+               FIELDS TERMINATED BY ',' 
+               LINES TERMINATED BY '\n';  
+               """,
+               # 7. Output results for the 2008 to 2012 contiguous sampling
+               """
+               SELECT 'site_id', 'sp_id', 'ab'
+               UNION ALL 
+               SELECT counts_too.SiteID, counts_too.TOO, SUM(counts_too.AB) AS AB
+               FROM queries.counts_too INNER JOIN queries.weather_sub_cnt
+               ON counts_too.SiteID = weather_sub_cnt.SiteID
+               AND counts_too.Year = weather_sub_cnt.Year
+               AND weather_sub_cnt.Count = 5
+               GROUP BY counts_too.SiteID, counts_too.TOO
+               INTO OUTFILE '/tmp/bbs_2008_2012_spab.csv'
                FIELDS TERMINATED BY ',' 
                LINES TERMINATED BY '\n';
+               """,
+               # 8. Output coordinates for routes examined:
+               """
+               SELECT 'site_id', 'latitude', 'longitude'
+               UNION ALL 
+               SELECT (routes.statenum * 1000) + routes.route AS SiteID, lati, loni
+               FROM BBS.routes 
+               INTO OUTFILE '/tmp/bbs_coords.csv'
+               FIELDS TERMINATED BY ',' 
+               LINES TERMINATED BY '\n';  
                """]
 
 # CBC
@@ -164,7 +214,7 @@ cbc_queries = [# Step 1. Group By SPECIES_CODE and by TOO WHERE DIURNAL LANDBIRD
                """,
                # Step 8. Remove zeroes from data, and save table to file
                """
-               SELECT 'site_id', 'year', 'too', 'ab'
+               SELECT 'site_id', 'year', 'sp_id', 'ab'
                UNION ALL 
                SELECT * FROM queries.obs_5 
                WHERE obs_5.AB > 0
@@ -307,7 +357,7 @@ fia_queries = [# Step 1: Select CN field from SURVEY table where ANN_INVENTORY =
               """,
               # Step 10: export species abu table
               """
-              SELECT 'SiteID', 'plt_cn', 'spID', 'ab' 
+              SELECT 'site_id', 'plt_cn', 'sp_id', 'ab' 
               UNION ALL
               SELECT * FROM fia_queries.tree3
               INTO OUTFILE '/tmp/fia_spab.csv'
@@ -322,8 +372,8 @@ fia_queries = [# Step 1: Select CN field from SURVEY table where ANN_INVENTORY =
               # Step 12: export site coords table
               """
               # Takes approximately 10 minutes
-              SELECT 'SiteID', 'cn', 'statecd', 'unitcd', 'countycd', 'plot',
-                     'invyr', 'latitude', 'longitude', 'elev'
+              SELECT 'site_id', 'cn', 'statecd', 'unitcd', 'countycd', 'plot',
+                     'year', 'latitude', 'longitude', 'elev'
               UNION ALL
               SELECT ((statecd * 10000000000) +
                       (unitcd * 1000000000) +
@@ -339,7 +389,7 @@ fia_queries = [# Step 1: Select CN field from SURVEY table where ANN_INVENTORY =
 
 gentry_queries = ["""
                   # Export a species count table
-                  SELECT 'siteID', 'spID', 'spName', 'ab' 
+                  SELECT 'site_id', 'sp_id', 'sp_name', 'ab' 
                   UNION ALL
                   SELECT counts.site_code, counts.species_id, 
                   CONCAT(species.genus, " ", species.species) AS species_name,
@@ -353,7 +403,7 @@ gentry_queries = ["""
                   """, 
                   """                  
                   # Export coordinates file
-                  SELECT 'siteID', 'latitude', 'longitude' 
+                  SELECT 'site_id', 'latitude', 'longitude' 
                   UNION ALL
                   SELECT abbreviation, lat, lon
                   FROM Gentry.sites
