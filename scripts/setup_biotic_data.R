@@ -1,99 +1,105 @@
-setwd('~/maxent/geog')
 
 library(sp)
 library(rgdal)
+library(maps)
 
 ## PART I - setup biotic spatial coordinates
 ## read in biotic coordinates in and aggregate into a list
 ## in data col1 is lat and col2 is long, switch this order on read in
 
-datasets = c('bbs','cbc','fia','gentry','mcdb','nabc')
-coordFileEnding = '_lat_long.csv'
-parmFileEnding = '_dist_test.csv'
+datasets = c('bbs_2012', 'bbs_2008_2012', 'cbc','fia','gentry','naba')
+siteFileEnding = '_coords.csv'
+spFileEnding = '_spab.csv'
 
-meteData = list()
+mete_data = vector('list', length(datasets))
+names(mete_data) = datasets
 
-for(i in seq_along(datasets)){
-  columns = 2:1
-  if(datasets[i] == 'nabc'){
-    meteData[[i]] = cbind(
-      read.table(paste('./data/', datasets[i],coordFileEnding,sep=''),
-                 header=FALSE,sep=',')[,columns],
-      read.table(paste('./data/', datasets[i],parmFileEnding,sep=''),
-                 header=FALSE,sep=',',quote=''))  # requires the quote argument
-  }
-  else{
-    meteData[[i]] = cbind(
-      read.table(paste('./data/', datasets[i],coordFileEnding,sep=''),
-                 header=FALSE,sep=',')[,columns],
-      read.table(paste('./data/', datasets[i],parmFileEnding,sep=''),
-                header=FALSE,sep=','))
-  }
-  colnames(meteData[[i]]) = c('Longitude','Latitude','SiteID','S','N',
-                               'p1','p2','p3','p4')
+for (i in seq_along(datasets)) {
+    if (grepl('bbs', datasets[i]))
+        coords = read.csv('./data/raw/bbs_coords.csv')
+    else
+        coords = read.csv(paste('./data/raw/', datasets[i],
+                                '_coords.csv', sep=''))
+    spab = read.csv(paste('./data/raw/', datasets[i], '_spab.csv', sep=''),
+                    na.string='\\N')
+    ## remove rows with NA in abundance column
+    spab = spab[!is.na(spab$ab), ]
+    sr = tapply(spab$sp_id, spab$site_id, length)
+    ab = tapply(spab$ab, spab$site_id, sum)
+    true = coords$site_id %in% names(sr)
+    coords = coords[true, ]
+    sr_indices = match(names(sr), coords$site_id)
+    ab_indices = match(names(ab), coords$site_id)
+    mete_data[[i]] = cbind(coords, sr[sr_indices], ab[ab_indices])
+    colnames(mete_data[[i]]) = c(names(coords), 'sr', 'ab')
 }
 
-names(meteData) = datasets
-
-## for the time being fix this datapoint which appears to have lost its decimal palce
-meteData$mcdb[16,1] = -114.97
-
 pdf('./figs/white_et_al_2012_data_map.pdf')
-cls = c('green3', 'dodgerblue', 'red', 'mediumpurple', 'orange', 'darkgreen')
-names_ordered = c('fia', 'bbs', 'cbc', 'nabc', 'mcdb', 'gentry')
+cls = c('green3', 'dodgerblue', 'red', 'mediumpurple', 'darkgreen')
+names_ordered = c('fia', 'bbs_2012', 'cbc', 'naba', 'gentry')
 map('world', interior=F)
-for(i in seq_along(meteData))
-  points(meteData[[names_ordered[i]]],pch=19, cex=.5, col=cls[i])
+for(i in seq_along(mete_data))
+  points(mete_data[[names_ordered[i]]]$longitude,
+         mete_data[[names_ordered[i]]]$latitude,
+         pch=19, cex=.5, col=cls[i])
 dev.off()
 
 ## examine spatial domain of North American datasets
-range(meteData$bbs$Longitude,meteData$cbc$Longitude,meteData$fia$Longitude,
-      meteData$nabc$Longitude)
-range(meteData$bbs$Latitude,meteData$cbc$Latitude,meteData$fia$Latitude,
-      meteData$nabcLatitude)
+range(mete_data$bbs_2012$longitude,mete_data$cbc$longitude,mete_data$fia$longitude,
+      mete_data$naba$longitude)
+range(mete_data$bbs_2012$latitude,mete_data$cbc$latitude,mete_data$fia$latitude,
+      mete_data$nabalatitude)
 
-studyExtentXvals = c(-167,-167,-50,-50,-167)
-studyExtentYvals = c(19,70,70,19,19)
+extent_x = c(-167,-167,-40,-40,-167)
+extent_y = c(-30,70,70,-30,-30)
 
-meteData = lapply(meteData, function(x){
-             x = x[as.logical(point.in.polygon(x$Longitude,x$Latitude,
-                 studyExtentXvals,studyExtentYvals)),] 
-             x
+mete_data = lapply(mete_data, function(x){
+                x = x[as.logical(point.in.polygon(
+                                 x$longitude, x$latitude,
+                                 extent_x, extent_y)), ] 
+                return(x)
              }
            )
  
-## convert meteData into a list of SpatialPointsDataFrames
+## convert mete_data into a list of SpatialPointsDataFrames
 for(i in seq_along(datasets)){
-  meteData[[i]] = SpatialPointsDataFrame(coords = meteData[[i]][,1:2],
-                  data = meteData[[i]],
+  mete_data[[i]] = SpatialPointsDataFrame(coords = mete_data[[i]][ , 1:2],
+                  data = mete_data[[i]],
                   proj4string = CRS('+proj=longlat +ellps=WGS84'))
 }
 
 gc()
 
 ## write data product to file
-save(meteData,file="./data/meteData.Rdata")
-#load('./data/meteData.Rdata')
+save(mete_data, file="./data/mete_data.Rdata")
+#load('./data/mete_data.Rdata')
 
 ## Optional: take a look at geographic distribution of biotic data
 library(maps)
 pdf('./figs/maps_of_data.pdf')
 par(mfrow=c(1,1))
-cls = c('green3', 'dodgerblue', 'red', 'mediumpurple', 'orange', 'darkgreen')
-names_ordered = c('fia', 'bbs', 'cbc', 'nabc', 'mcdb', 'gentry')
-map('world',c('canada','usa','mexico'),xlim=c(-170,-50))
-for(i in 1:length(meteData))
-  points(meteData[[names_ordered[i]]],pch=19, cex=.5, col=cls[i])
+cls = c('green3', 'dodgerblue', 'dodgerblue', 'red', 'mediumpurple', 'darkgreen')
+names_ordered = c('fia', 'bbs_2012', 'bbs_2008_2012',
+                  'cbc', 'naba', 'gentry')
+map('world', xlim=c(-170,-40), ylim=c(-40,70))
+for(i in 1:length(mete_data))
+  points(mete_data[[names_ordered[i]]]$longitude,
+         mete_data[[names_ordered[i]]]$latitude,
+         pch=19, cex=.5, col=cls[i])
 ## bounding box corners
 #points(c(-157,-52),c(24,67),col='red',pch=19,cex=3) 
-for(i in 1:length(meteData)) {
-  map('world',c('canada','usa','mexico'),xlim=c(-170,-50))
-  for(j in 1:i) {
-    if (j < i)
-      points(meteData[[names_ordered[j]]],pch=19,cex=.5,col='grey')
-    else
-      points(meteData[[names_ordered[j]]],pch=19,cex=.5,col=cls[i])
-  }
+for(i in 1:length(mete_data)) {
+    map('world',xlim=c(-170,-40), ylim=c(-40,70))
+    for(j in 1:i) {
+        if (j < i)
+            points(mete_data[[names_ordered[i]]]$longitude,
+                   mete_data[[names_ordered[i]]]$latitude,
+                   pch=19,cex=.5,col='grey')
+        else
+            points(mete_data[[names_ordered[i]]]$longitude,
+                   mete_data[[names_ordered[i]]]$latitude,
+                   pch=19,cex=.5,col=cls[i])
+    }
 }
 dev.off()
 
