@@ -59,6 +59,6 @@ for dataset in datasets:
     for datatype in ['fit', 'test']:
         envpred_data = read_csv('./results/' + dataset + '_state_var_' + datatype + '_obs_pred.csv')
         envpred_sads = get_envpred_sads(envpred_data)
-        envpred_sads.to_csv('./results/' + dataset + '_sad_' + datatype + 'pred.csv')
+        envpred_sads.to_csv('./results/' + dataset + '_sad_' + datatype + '_pred.csv')
         print dataset + ' ' + datatype + ' complete!' 
-        
+
