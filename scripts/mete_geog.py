@@ -18,7 +18,7 @@ from math import log, ceil
 import numpy as np
 import sys
 
-from mete import get_mete_sad
+from mete import get_mete_sad, which
 from macroecotools import plot_color_by_pt_dens, obs_pred_rsquare
 
 def import_data(resultdir, rawdir, datatype, dataset):
@@ -58,6 +58,9 @@ else:
 for dataset in datasets:
     for datatype in ['fit', 'test']:
         envpred_data = read_csv('./results/' + dataset + '_state_var_' + datatype + '_obs_pred.csv')
+        # check that predicted S smaller than predicted N
+        rows_to_keep = (envpred_data.logNpred - envpred_data.logSpred) > 0
+        envpred_data = envpred_data[rows_to_keep]
         envpred_sads = get_envpred_sads(envpred_data)
         envpred_sads.to_csv('./results/' + dataset + '_sad_' + datatype + '_pred.csv')
         print dataset + ' ' + datatype + ' complete!' 
