@@ -24,7 +24,7 @@ else:
 
 for dataset in datasets:
     for datatype in ['fit', 'test']:
-        for predtype in ['rad']:
+        for predtype in ['sad']:
             obs_pred_data = read_csv('./results/' + dataset + '_' + predtype+ '_' + datatype + '_obs_pred.csv')
             adj = 0
             log_pred = [log(float(i + adj)) for i in obs_pred_data['pred'].values]
