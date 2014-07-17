@@ -20,12 +20,12 @@ def plot_obs_pred(obs_pred_data, adj=0, dest_file='./obs_pred.png'):
 if len(sys.argv) > 1:
     datasets = [sys.argv[1]]
 else:
-    datasets = ['bbs_2012', 'bbs_2008_2012', 'cbc', 'gentry', 'naba']
+    datasets = ['bbs_2012', 'bbs_2008_2012', 'cbc', 'fia', 'gentry', 'naba']
 
 for dataset in datasets:
     for datatype in ['fit', 'test']:
         for predtype in ['sad']:
-            obs_pred_data = read_csv('./results/' + dataset + '_' + predtype+ '_' + datatype + '_obs_pred.csv')
+            obs_pred_data = read_csv('./results/' + dataset + '_' + predtype+ '_' + datatype + '_obs_pred_norm.csv')
             adj = 1
             log_pred = [log(float(i + adj)) for i in obs_pred_data['pred'].values]
             log_obs = [log(float(i + adj)) for i in obs_pred_data['obs'].values]                  
