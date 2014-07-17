@@ -63,7 +63,7 @@ else:
 
 for dataset in datasets:
     for datatype in ['fit', 'test']:
-        for predtype in ['rad']:
+        for predtype in ['sad', 'rad']:
             envpred_data = read_csv('./results/' + dataset + '_state_var_' + datatype + '_obs_pred.csv')
             # check that predicted S smaller than predicted N
             rows_to_keep1 = (envpred_data.logNpred - envpred_data.logSpred) > 0
