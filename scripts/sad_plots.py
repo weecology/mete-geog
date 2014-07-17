@@ -10,11 +10,11 @@ import sys
 
 from macroecotools import plot_color_by_pt_dens, obs_pred_rsquare
 
-def plot_obs_pred(obs_pred_data, dest_file='./obs_pred.png'):
-    plot_color_by_pt_dens(obs_pred_data['pred'] + 1, obs_pred_data['obs'] + 1,
+def plot_obs_pred(obs_pred_data, adj=0, dest_file='./obs_pred.png'):
+    plot_color_by_pt_dens(obs_pred_data['pred'] + adj, obs_pred_data['obs'] + adj,
                           3, loglog=1)
-    plt.loglog([min(obs_pred_data['pred'] + 1), max(obs_pred_data['pred'] + 1)], 
-               [min(obs_pred_data['pred'] + 1), max(obs_pred_data['pred'] + 1)], 'k-')
+    plt.loglog([min(obs_pred_data['pred'] + adj), max(obs_pred_data['pred'] + adj)], 
+               [min(obs_pred_data['pred'] + adj), max(obs_pred_data['pred'] + adj)], 'k-')
     plt.savefig(dest_file, dpi = 400)
 
 if len(sys.argv) > 1:
@@ -25,10 +25,15 @@ else:
 
 for dataset in datasets:
     for datatype in ['fit', 'test']:
-        obs_pred_data = read_csv('./results/' + dataset + '_sad_' + datatype + '_obs_pred.csv')
-        log_pred = [log(float(i + 1)) for i in obs_pred_data['pred'].values]
-        log_obs = [log(float(i + 1)) for i in obs_pred_data['obs'].values]    
-        print obs_pred_rsquare(np.array(log_pred), np.array(log_obs))
-        plot_obs_pred(obs_pred_data,
-                      dest_file='./figs/' + dataset + '_' + datatype +'_obs_pred_sad.png')  
+        for predtype in ['sad', 'rad']:
+            obs_pred_data = read_csv('./results/' + dataset + '_sad_' + datatype + '_obs_pred.csv')
+            if predtype is 'sad':                  
+                adj = 1
+            if predtype is 'rad':
+                adj = 0
+            log_pred = [log(float(i + adj)) for i in obs_pred_data['pred'].values]
+            log_obs = [log(float(i + adj)) for i in obs_pred_data['obs'].values]                  
+            print obs_pred_rsquare(np.array(log_pred), np.array(log_obs))
+            plot_obs_pred(obs_pred_data, adj=adj,
+                          dest_file='./figs/' + dataset + '_' + datatype +'_obs_pred_sad.png')            
 
