@@ -24,13 +24,11 @@ for (i in seq_along(datasets)) {
                     na.string='\\N')
     ## remove rows with NA in abundance column
     spab = spab[!is.na(spab$ab), ]
-    sr = tapply(spab$sp_id, spab$site_id, length)
+    sr = tapply(spab$sp_id, spab$site_id, function(x) length(unique(x)))
     ab = tapply(spab$ab, spab$site_id, sum)
-    true = coords$site_id %in% names(sr)
-    coords = coords[true, ]
-    sr_indices = match(names(sr), coords$site_id)
-    ab_indices = match(names(ab), coords$site_id)
-    mete_data[[i]] = cbind(coords, sr[sr_indices], ab[ab_indices])
+    ## match up the site ids so rows of coords match
+    coords = coords[match(names(sr), coords$site_id), ]
+    mete_data[[i]] = cbind(coords, sr, ab)
     colnames(mete_data[[i]]) = c(names(coords), 'sr', 'ab')
 }
 
@@ -62,10 +60,11 @@ mete_data = lapply(mete_data, function(x){
            )
  
 ## convert mete_data into a list of SpatialPointsDataFrames
-for(i in seq_along(datasets)){
-  mete_data[[i]] = SpatialPointsDataFrame(coords = mete_data[[i]][ , 1:2],
-                  data = mete_data[[i]],
-                  proj4string = CRS('+proj=longlat +ellps=WGS84'))
+for(i in seq_along(datasets)) {
+    mete_data[[i]] = SpatialPointsDataFrame(
+                         coords = mete_data[[i]][ , c('longitude', 'latitude')],
+                         data = mete_data[[i]], 
+                         proj4string = CRS('+proj=longlat +ellps=WGS84'))
 }
 
 gc()
@@ -73,6 +72,12 @@ gc()
 ## write data product to file
 save(mete_data, file="./data/mete_data.Rdata")
 #load('./data/mete_data.Rdata')
+
+for (i in seq_along(mete_data)) {
+    write.csv(mete_data[[i]]@data[ , c('site_id', 'longitude','latitude')],
+              file=paste('./data/', names(mete_data)[i], '_coords.csv',
+                         sep=''), row.names=F)
+}
 
 ## Optional: take a look at geographic distribution of biotic data
 library(maps)
