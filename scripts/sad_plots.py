@@ -19,19 +19,14 @@ def plot_obs_pred(obs_pred_data, adj=0, dest_file='./obs_pred.png'):
 
 if len(sys.argv) > 1:
     datasets = [sys.argv[1]]
-    predtypes = [sys.argv[2]]
 else:
     datasets = ['bbs_2012', 'bbs_2008_2012', 'cbc', 'gentry', 'naba']
-    predtypes = ['sad', 'rad']
 
 for dataset in datasets:
     for datatype in ['fit', 'test']:
-        for predtype in ['sad']:
+        for predtype in ['rad']:
             obs_pred_data = read_csv('./results/' + dataset + '_' + predtype+ '_' + datatype + '_obs_pred.csv')
-            if predtype is 'sad':                  
-                adj = 1
-            if predtype is 'rad':
-                adj = 0
+            adj = 0
             log_pred = [log(float(i + adj)) for i in obs_pred_data['pred'].values]
             log_obs = [log(float(i + adj)) for i in obs_pred_data['obs'].values]                  
             print obs_pred_rsquare(np.array(log_pred), np.array(log_obs))
