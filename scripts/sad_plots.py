@@ -34,6 +34,6 @@ for dataset in datasets:
             log_pred = [log(float(i + adj)) for i in obs_pred_data['pred'].values]
             log_obs = [log(float(i + adj)) for i in obs_pred_data['obs'].values]                  
             print obs_pred_rsquare(np.array(log_pred), np.array(log_obs))
-            plot_obs_pred(obs_pred_data, adj=adj,
-                          dest_file='./figs/' + dataset + '_' + datatype +'_obs_pred_sad.png')            
+            fig_name = './figs/' + dataset + '_' + datatype +'_obs_pred_' + predtype + '.png'
+            plot_obs_pred(obs_pred_data, adj=adj, dest_file=fig_name)
 
