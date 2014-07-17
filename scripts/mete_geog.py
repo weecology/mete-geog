@@ -69,6 +69,6 @@ for dataset in datasets:
             rows_to_keep = (envpred_data.logNpred - envpred_data.logSpred) > 0
             envpred_data = envpred_data[rows_to_keep]
             envpred = get_envpred(envpred_data, predtype)
-            envpred.to_csv('./results/' + dataset + '_', predtype + '_' + datatype + '_pred.csv')
+            envpred.to_csv('./results/' + dataset + '_' + predtype + '_' + datatype + '_pred.csv')
             print dataset + ' ' + datatype + ' ' + predtype + ' ' + 'complete!'
 
