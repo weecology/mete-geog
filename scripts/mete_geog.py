@@ -66,7 +66,9 @@ for dataset in datasets:
         for predtype in ['rad']:
             envpred_data = read_csv('./results/' + dataset + '_state_var_' + datatype + '_obs_pred.csv')
             # check that predicted S smaller than predicted N
-            rows_to_keep = (envpred_data.logNpred - envpred_data.logSpred) > 0
+            rows_to_keep1 = (envpred_data.logNpred - envpred_data.logSpred) > 0
+            rows_to_keep2 = (envpred_data.logNpred - envpred_data.logS) > 0
+            rows_to_keep = rows_to_keep1 & rows_to_keep2
             envpred_data = envpred_data[rows_to_keep]
             envpred = get_envpred(envpred_data, predtype)
             envpred.to_csv('./results/' + dataset + '_' + predtype + '_' + datatype + '_pred.csv')
