@@ -19,9 +19,10 @@ def plot_obs_pred(obs_pred_data, adj=0, dest_file='./obs_pred.png'):
 
 if len(sys.argv) > 1:
     datasets = [sys.argv[1]]
+    predtypes = [sys.argv[2]]
 else:
     datasets = ['bbs_2012', 'bbs_2008_2012', 'cbc', 'gentry', 'naba']
-
+    predtypes = ['sad', 'rad']
 
 for dataset in datasets:
     for datatype in ['fit', 'test']:
