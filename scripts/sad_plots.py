@@ -20,7 +20,7 @@ def plot_obs_pred(obs_pred_data, dest_file='./obs_pred.png'):
 if len(sys.argv) > 1:
     datasets = [sys.argv[1]]
 else:
-    datasets = ['bbs_2012', 'bbs_2008_2012', 'cbc', 'gentry', 'nabc']
+    datasets = ['bbs_2012', 'bbs_2008_2012', 'cbc', 'gentry', 'naba']
 
 
 for dataset in datasets:
@@ -31,4 +31,4 @@ for dataset in datasets:
         print obs_pred_rsquare(np.array(log_pred), np.array(log_obs))
         plot_obs_pred(obs_pred_data,
                       dest_file='./figs/' + dataset + '_' + datatype +'_obs_pred_sad.png')  
-    
+
