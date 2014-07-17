@@ -26,7 +26,7 @@ else:
 for dataset in datasets:
     for datatype in ['fit', 'test']:
         for predtype in ['sad', 'rad']:
-            obs_pred_data = read_csv('./results/' + dataset + '_sad_' + datatype + '_obs_pred.csv')
+            obs_pred_data = read_csv('./results/' + dataset + '_' + predtype+ '_' + datatype + '_obs_pred.csv')
             if predtype is 'sad':                  
                 adj = 1
             if predtype is 'rad':
