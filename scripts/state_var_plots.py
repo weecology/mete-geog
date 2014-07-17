@@ -13,8 +13,8 @@ from macroecotools import plot_color_by_pt_dens, obs_pred_rsquare
 def plot_obs_pred(obs_pred_data, yvar, dest_file='./obs_pred.png'):
     plot_color_by_pt_dens(10**obs_pred_data[yvar + 'pred'], 10**obs_pred_data[yvar],
                           3, loglog=1)
-    plt.loglog([min(10**obs_pred_data['pred'] + adj), max(10**obs_pred_data['pred'] + adj)], 
-               [min(10**obs_pred_data['pred'] + adj), max(10**obs_pred_data['pred'] + adj)], 'k-')
+    plt.loglog([min(10**obs_pred_data['pred'] ), max(10**obs_pred_data['pred'] )], 
+               [min(10**obs_pred_data['pred'] ), max(10**obs_pred_data['pred'] )], 'k-')
     plt.savefig(dest_file, dpi = 400)
 
 if len(sys.argv) > 1:
