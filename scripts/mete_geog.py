@@ -56,7 +56,7 @@ def get_envpred(envpred_data, predtype=['sad', 'rad']):
             site_pred_with_id = DataFrame(np.column_stack([site_ids, rank, site_pred]),
                                           columns=['site_id', 'rank', 'env_pred'])
         if predtype is 'rare':
-            pred_rad = get_mete_rad(envpred_S, envpred_N)[0]
+            pred_rad = get_mete_rad(int(envpred_S), envpred_N)[0]
             site_pred = sum([i <= 10 for i in pred_rad])
             site_ids = [site['site_id'] for i in range(0, len(site_pred))]
             site_pred_with_id = DataFrame(np.column_stack([site_ids, site_pred]),
