@@ -27,7 +27,6 @@ for dataset in datasets:
         for predtype in ['sad']:
             obs_pred_data = read_csv('./results/' + dataset + '_' + predtype+ '_' + datatype + '_obs_pred_norm.csv')
             obs_pred_data = obs_pred_data[obs_pred_data['octave'] <= 4]
-            adj = 0
             sites = list(set(obs_pred_data['site_id'].values))
             obs_tot = []
             pred_tot = []
@@ -35,8 +34,9 @@ for dataset in datasets:
                 tmp = obs_pred_data[obs_pred_data['site_id'] == i]
                 obs_tot.append(sum(tmp['obs'].values))
                 pred_tot.append(sum(tmp['pred'].values))
-            log_pred = [log(i) for i in pred_tot]
-            log_obs = [log(i) for i in obs_tot]
+            adj = 0
+            log_pred = [log(i + adj) for i in pred_tot]
+            log_obs = [log(i + adj) for i in obs_tot]
             print obs_pred_rsquare(np.array(log_pred), np.array(log_obs))
             fig_name = './figs/' + dataset + '_' + datatype +'_obs_pred_rarity.png'
             plot_obs_pred(obs_pred_data, adj=adj, dest_file=fig_name)
