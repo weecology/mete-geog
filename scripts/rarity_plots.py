@@ -10,7 +10,7 @@ import sys
 
 from macroecotools import plot_color_by_pt_dens, obs_pred_rsquare
 
-def plot_obs_pred(obs_pred_data, adj=0, dest_file='./obs_pred.png'):
+def plot_obs_pred(obs_pred_data, dest_file='./obs_pred.png'):
     sites = list(set(obs_pred_data['site_id'].values))
     obs_tot = []
     pred_tot = []
@@ -18,9 +18,9 @@ def plot_obs_pred(obs_pred_data, adj=0, dest_file='./obs_pred.png'):
         tmp = obs_pred_data[obs_pred_data['site_id'] == i]
         obs_tot.append(sum(tmp['obs'].values))
         pred_tot.append(sum(tmp['pred'].values))    
-    plot_color_by_pt_dens(pred_tot + adj, obs_tot + adj, 3, loglog=1)
-    plt.loglog([min(pred_tot + adj), max(pred_tot + adj)], 
-               [min(pred_tot + adj), max(pred_tot + adj)], 'k-')
+    plot_color_by_pt_dens(pred_tot, obs_tot, 3, loglog=1)
+    plt.loglog([min(pred_tot), max(pred_tot)], 
+               [min(pred_tot), max(pred_tot)], 'k-')
     plt.savefig(dest_file, dpi = 400)    
 
 if len(sys.argv) > 1:
@@ -40,8 +40,7 @@ for dataset in datasets:
                 tmp = obs_pred_data[obs_pred_data['site_id'] == i]
                 obs_tot.append(sum(tmp['obs'].values))
                 pred_tot.append(sum(tmp['pred'].values))
-            adj = 0
             print obs_pred_rsquare(np.array(pred_tot), np.array(obs_tot))
             fig_name = './figs/' + dataset + '_' + datatype +'_obs_pred_rarity.png'
-            plot_obs_pred(obs_pred_data, adj=adj, dest_file=fig_name)
+            plot_obs_pred(obs_pred_data, dest_file=fig_name)
 
