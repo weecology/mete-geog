@@ -34,8 +34,8 @@ for dataset in datasets:
                 tmp = obs_pred_data[obs_pred_data['site_id'] == i]
                 obs_tot.append(sum(tmp['obs'].values))
                 pred_tot.append(sum(tmp['pred'].values))
-            log_pred = [log(float(i + adj)) for i in obs_tot]
-            log_obs = [log(float(i + adj)) for i in pred_tot]
+            log_pred = [log(float(i + adj)) for i in pred_tot]
+            log_obs = [log(float(i + adj)) for i in obs_tot]
             print obs_pred_rsquare(np.array(log_pred), np.array(log_obs))
             fig_name = './figs/' + dataset + '_' + datatype +'_obs_pred_rarity.png'
             plot_obs_pred(obs_pred_data, adj=adj, dest_file=fig_name)
