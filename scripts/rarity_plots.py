@@ -12,8 +12,8 @@ from macroecotools import plot_color_by_pt_dens, obs_pred_rsquare
 
 def plot_obs_pred(obs_pred_data, dest_file='./obs_pred.png'):
     plot_color_by_pt_dens(obs_pred_data['pred'], obs_pred_data['obs'], 3, loglog=1)
-    plt.loglog([min(pred_tot), max(pred_tot)], 
-               [min(pred_tot), max(pred_tot)], 'k-')
+    plt.loglog([min(obs_pred_data['pred']), max(obs_pred_data['pred'])], 
+               [min(obs_pred_data['pred']), max(obs_pred_data['pred'])], 'k-')
     plt.savefig(dest_file, dpi = 400)    
 
 if len(sys.argv) > 1:
@@ -24,7 +24,7 @@ else:
 for dataset in datasets:
     for datatype in ['fit', 'test']:
         for predtype in ['rare']:
-            obs_pred_data = read_csv('./results/' + dataset + '_' + predtype+ '_' + datatype + '_obs_pred_norm.csv')
+            obs_pred_data = read_csv('./results/' + dataset + '_' + predtype+ '_' + datatype + '_obs_pred.csv')
             print obs_pred_rsquare(np.array(obs_pred_data['obs'].values), np.array(obs_pred_data['pred'].values))
             fig_name = './figs/' + dataset + '_' + datatype +'_obs_pred_rarity.png'
             plot_obs_pred(obs_pred_data, dest_file=fig_name)
