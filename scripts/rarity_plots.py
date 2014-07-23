@@ -27,6 +27,7 @@ for dataset in datasets:
         for predtype in ['sad']:
             obs_pred_data = read_csv('./results/' + dataset + '_' + predtype+ '_' + datatype + '_obs_pred_norm.csv')
             obs_pred_data = obs_pred_data[obs_pred_data['octave'] <= 4]
+            adj = 0
             sites = list(set(obs_pred_data['site_id'].values))
             obs_tot = []
             pred_tot = []
