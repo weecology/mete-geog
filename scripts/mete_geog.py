@@ -35,6 +35,8 @@ def get_envpred(envpred_data, predtype=['sad', 'rad']):
         envpred = DataFrame(columns=['site_id', 'octave', 'env_pred'])
     if predtype is 'rad':
         envpred = DataFrame(columns=['site_id', 'rank', 'env_pred'])
+    if pretype is 'rare':
+        envpred = DataFrame(columns=['site_id', 'env_pred'])
     for index, site in envpred_data.iterrows():
         obs_S = site['S']
         envpred_S = 10 ** site['logSpred']
@@ -53,6 +55,12 @@ def get_envpred(envpred_data, predtype=['sad', 'rad']):
             site_ids = [site['site_id'] for i in range(0, len(site_pred))]
             site_pred_with_id = DataFrame(np.column_stack([site_ids, rank, site_pred]),
                                           columns=['site_id', 'rank', 'env_pred'])
+        if predtype is 'rare':
+            pred_rad = get_mete_rad(envpred_S, envpred_N)[0]
+            site_pred = sum([i <= 10 for i in pred_rad])
+            site_ids = [site['site_id'] for i in range(0, len(site_pred))]
+            site_pred_with_id = DataFrame(np.column_stack([site_ids, site_pred]),
+                                          columns=['site_id', 'env_pred']) 
         envpred = envpred.append(site_pred_with_id, ignore_index=True)
     return envpred
 
@@ -63,7 +71,7 @@ else:
 
 for dataset in datasets:
     for datatype in ['fit', 'test']:
-        for predtype in ['sad', 'rad']:
+        for predtype in ['sad', 'rad', 'rare']:
             envpred_data = read_csv('./results/' + dataset + '_state_var_' + datatype + '_obs_pred.csv')
             # check that predicted S smaller than predicted N
             rows_to_keep1 = (envpred_data.logNpred - envpred_data.logSpred) > 0
