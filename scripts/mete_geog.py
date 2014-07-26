@@ -18,7 +18,7 @@ from math import log, ceil
 import numpy as np
 import sys
 
-from mete import get_mete_rad, get_mete_sad, which
+from mete import get_mete_rad, get_mete_sad, which, get_beta
 from macroecotools import plot_color_by_pt_dens, obs_pred_rsquare
 
 def get_log_bins(abu, logbase=2):
@@ -51,7 +51,8 @@ def get_envpred(envpred_data, predtype=['sad', 'rad']):
         if predtype is 'rad':
             # note using observed S here for time being            
             rank = range(1, int(obs_S + 1))
-            site_pred, p = get_mete_rad(obs_S, envpred_N)
+            site_beta = get_beta(envpred_S, envpred_N)
+            site_pred, p = get_mete_rad(obs_S, envpred_N, beta=site_beta)
             site_ids = [site['site_id'] for i in range(0, len(site_pred))]
             site_pred_with_id = DataFrame(np.column_stack([site_ids, rank, site_pred]),
                                           columns=['site_id', 'rank', 'env_pred'])
